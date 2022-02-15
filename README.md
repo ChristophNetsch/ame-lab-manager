@@ -194,7 +194,3 @@ This application uses the following modules
 ## Testing
 
 Note: This web application has been tested thoroughly during multiple large projects, however tests for this bare minimum version would be added in `tests` folder very soon to help you get started.
-
-## Need Help? 🤝
-
-If you need further help, reach out to me via [Twitter](https://twitter.com/kundan7_) DM.
