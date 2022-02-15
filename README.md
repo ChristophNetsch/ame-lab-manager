@@ -1,6 +1,6 @@
-# Flask-Starter
+# AME Lab Manager
 
-Flask-Starter is a boilerplate starter template designed to help you quickstart your Flask web application development. It has all the ready-to-use bare minimum essentials.
+This project is forked from Flask-Starter, a boilerplate starter template designed to help you quickstart your Flask web application development. It has all the ready-to-use bare minimum essentials.
 
 ## Features
 
@@ -60,8 +60,8 @@ Check `emails/__init__.py` to see how emails being sent in `async` mode
 clone the project
 
 ```bash
-$ git clone https://github.com/ksh7/flask-starter.git
-$ cd flask-starter
+$ git clone https://github.com/ChristophNetsch/ame-lab-manager
+$ cd ame-lab-manager
 ```
 
 create virtual environment using python3 and activate it (keep it outside our project directory)
@@ -77,19 +77,6 @@ install dependencies in virtualenv
 $ pip install -r requirements.txt
 ```
 
-setup `flask` command for our app
-
-```bash
-$ export FLASK_APP=manage.py
-$ export FLASK_ENV=development
-```
-
-create instance folder in `/tmp` directory (sqlite database, temp files stay here)
-
-```bash
-$ mkdir /tmp/flaskstarter-instance
-```
-
 initialize database and get two default users (admin & demo), check `manage.py` for details
 
 ```bash
@@ -102,7 +89,7 @@ $ flask initdb
 $ flask run
 ```
 
-## Screenshots
+## Screenshots from original Template
 
 ![Homepage](/screenshots/homepage.png)
 ![SignUp](/screenshots/signup.png)
@@ -116,8 +103,8 @@ $ flask run
 ## Project Structure
 
 ```bash
-flask-starter/
-├── flaskstarter
+ame-lab-manager/
+├── ame_manager_app
 │   ├── app.py
 │   ├── config.py
 │   ├── decorators.py

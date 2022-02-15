@@ -3,14 +3,13 @@
     Common utilities to be used in application
 """
 
-import os
-
+import pathlib
 import datetime
 
 
 # Instance folder path, to keep stuff aware from flask app.
-INSTANCE_FOLDER_PATH = os.path.join('/tmp', 'flaskstarter-instance')
-
+INSTANCE_FOLDER_PATH = pathlib.Path(pathlib.Path(__file__).parents[1], "tmp", "app_instance")
+INSTANCE_FOLDER_PATH.mkdir(exist_ok=True, parents=True)
 
 # Form validation
 

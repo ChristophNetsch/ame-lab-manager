@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
+import dotenv
+dotenv.load_dotenv()
 
 from sqlalchemy.orm.mapper import configure_mappers
 
-from flaskstarter import create_app
-from flaskstarter.extensions import db
-from flaskstarter.user import Users, ADMIN, USER, ACTIVE
-from flaskstarter.tasks import MyTaskModel
+from ame_manager_app import create_app
+from ame_manager_app.extensions import db
+from ame_manager_app.user import Users, ADMIN, USER, ACTIVE
+from ame_manager_app.tasks import MyTaskModel
 
 application = create_app()
 
@@ -18,8 +20,8 @@ def initdb():
     configure_mappers()
     db.create_all()
 
-    admin = Users(name='Admin Flask-Starter',
-                  email=u'admin@your-mail.com',
+    admin = Users(name='Admin AME Lab Manager',
+                  email=u'cnh@csem.ch',
                   password=u'adminpassword',
                   role_code=ADMIN,
                   status_code=ACTIVE)
@@ -27,8 +29,8 @@ def initdb():
     db.session.add(admin)
 
     for i in range(1, 2):
-        user = Users(name='Demo User',
-                     email=u'demo@your-mail.com',
+        user = Users(name='Micha Landoll',
+                     email=u'landoll@ame.rwth-aachen',
                      password=u'demopassword',
                      role_code=USER,
                      status_code=ACTIVE)

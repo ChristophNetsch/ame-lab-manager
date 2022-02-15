@@ -54,7 +54,7 @@ def add_task():
         db.session.commit()
 
         db.session.refresh(_task)
-        flash('Your task is added successfully!', 'success')
+        flash('Your Device is added successfully!', 'success')
         return redirect(url_for("tasks.my_tasks"))
 
     return render_template('tasks/add_task.html', form=_form, _active_tasks=True)
@@ -72,7 +72,7 @@ def delete_task(id):
     db.session.delete(_task)
     db.session.commit()
 
-    flash('Your task is deleted successfully!', 'success')
+    flash('Your Device is deleted successfully!', 'success')
     return redirect(url_for('tasks.my_tasks'))
 
 
@@ -95,7 +95,7 @@ def edit_task(id):
         db.session.add(_task)
         db.session.commit()
 
-        flash('Your task updated successfully!', 'success')
+        flash('Your Device updated successfully!', 'success')
         return redirect(url_for("tasks.my_tasks"))
 
     return render_template('tasks/edit_task.html', form=_form, task=_task, _active_tasks=True)

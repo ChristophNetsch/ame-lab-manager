@@ -8,17 +8,17 @@ from .utils import INSTANCE_FOLDER_PATH
 class BaseConfig(object):
     # Change these settings as per your needs
 
-    PROJECT = "flaskstarter"
-    PROJECT_NAME = "flaskstarter.domain"
+    PROJECT = "ame_manager_app"
+    PROJECT_NAME = "ame_manager_app.local"
     PROJECT_ROOT = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
 
-    BASE_URL = "https://yourdomain-flaskstarter.domain"
-    ADMIN_EMAILS = ['admin@flaskstarter.domain']
+    BASE_URL = "https://ame-manager.local"
+    ADMIN_EMAILS = ['admin@ame-manager.local']
 
     DEBUG = False
     TESTING = False
 
-    SECRET_KEY = 'always-change-this-secret-key-with-random-alpha-nums'
+    SECRET_KEY = 'rf942ut8hg43ztyr579890ysrt'
 
 
 class DefaultConfig(BaseConfig):
@@ -30,7 +30,7 @@ class DefaultConfig(BaseConfig):
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # SQLITE for production
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///' + INSTANCE_FOLDER_PATH + '/db.sqlite'
+    SQLALCHEMY_DATABASE_URI = f'sqlite:///{INSTANCE_FOLDER_PATH}/db.sqlite'
 
     # POSTGRESQL for production
     # SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://postgres:pass@ip/dbname'
@@ -46,6 +46,6 @@ class DefaultConfig(BaseConfig):
     MAIL_USE_TLS = True
 
     # Keep these in instance folder or in env variables
-    MAIL_USERNAME = "admin-mail@yourdomain-flaskstarter.domain"
+    MAIL_USERNAME = "admin@ame-manager.local"
     MAIL_PASSWORD = ""
     MAIL_DEFAULT_SENDER = MAIL_USERNAME

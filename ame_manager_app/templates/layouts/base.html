@@ -5,10 +5,10 @@
 
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="Flask-Starter-App - Python Flask Starter Template">
+  <meta name="description" content="AME Lab Manager-App">
   <meta name="author" content="github.com/">
 
-  <title>{% block title %}{{ page_title|default('Flask-Starter') }}{% endblock %} - Flask-Starter-App</title>
+  <title>{% block title %}{{ page_title|default('AME Lab Manager') }}{% endblock %} - AME Lab Manager-App</title>
 
   <!-- Bootstrap core CSS -->
   <link href="{{ url_for('static', filename='bootstrap.min.css')}}" rel="stylesheet">
@@ -20,7 +20,8 @@
   <!-- Navigation -->
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark static-top">
     <div class="container">
-      <a class="navbar-brand" href="{{ url_for('frontend.index') }}">Flask-Starter</a>
+      <img src="{{url_for('static', filename='ame_rwth.svg')}}" align="middle" style="padding-right: 70px;"/>
+      <a class="navbar-brand" href="{{ url_for('frontend.index') }}">AME Lab Manager</a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>

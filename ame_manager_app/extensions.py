@@ -26,7 +26,7 @@ class HomeView(AdminIndexView):
 # Config default flask-admin view
 
 
-admin = Admin(name='Flask-Starter Admin', template_mode='bootstrap3', index_view=HomeView(name='Home'))
+admin = Admin(name='AME Lab Manager Admin', template_mode='bootstrap3', index_view=HomeView(name='Home'))
 
 admin.add_link(MenuLink(name='Back to Dashboard', url='/dashboard', icon_type='glyph', icon_value='glyphicon-circle-arrow-left'))
 

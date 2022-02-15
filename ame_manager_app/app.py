@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import dotenv
+dotenv.load_dotenv()
 
 from flask import Flask
 
@@ -31,7 +33,8 @@ def create_app(config=None, app_name=None, blueprints=None):
 
     app = Flask(app_name,
                 instance_path=INSTANCE_FOLDER_PATH,
-                instance_relative_config=True)
+                instance_relative_config=True,
+                )
 
     configure_app(app, config)
     configure_hook(app)
