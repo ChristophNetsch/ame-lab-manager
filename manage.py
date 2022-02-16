@@ -4,10 +4,10 @@ dotenv.load_dotenv()
 
 from sqlalchemy.orm.mapper import configure_mappers
 
-from ame_manager_app import create_app
-from ame_manager_app.extensions import db
-from ame_manager_app.user import Users, ADMIN, USER, ACTIVE
-from ame_manager_app.tasks import MyTaskModel
+from cve_manager_app import create_app
+from cve_manager_app.extensions import db
+from cve_manager_app.user import Users, ADMIN, USER, ACTIVE
+from cve_manager_app.tasks import MyTaskModel
 
 application = create_app()
 

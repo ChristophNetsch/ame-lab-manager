@@ -2,9 +2,9 @@
 
 import pytest
 
-from ..ame_manager_app import create_app
-from ..ame_manager_app.extensions import db
-from ..ame_manager_app.user import Users
+from ..cve_manager_app import create_app
+from ..cve_manager_app.extensions import db
+from ..cve_manager_app.user import Users
 
 
 def test_home_page():
