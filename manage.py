@@ -7,7 +7,7 @@ from sqlalchemy.orm.mapper import configure_mappers
 from ame_manager_app import create_app
 from ame_manager_app.extensions import db
 from ame_manager_app.user import Users, ADMIN, USER, ACTIVE
-from ame_manager_app.tasks import MyTaskModel
+from ame_manager_app.equipment import MyTaskModel
 
 application = create_app()
 

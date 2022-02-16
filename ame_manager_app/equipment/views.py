@@ -9,34 +9,34 @@ from .forms import MyTaskForm
 from .models import MyTaskModel
 
 
-tasks = Blueprint('tasks', __name__, url_prefix='/tasks')
+equipment = Blueprint('equipment', __name__, url_prefix='/equipment')
 
 
-@tasks.route('/my_tasks', methods=['GET', 'POST'])
+@equipment.route('/my_tasks', methods=['GET', 'POST'])
 @login_required
 def my_tasks():
 
     _all_tasks = MyTaskModel.query.filter_by(users_id=current_user.id).all()
 
-    return render_template('tasks/my_tasks.html',
+    return render_template('equipment/my_tasks.html',
                            all_tasks=_all_tasks,
                            _active_tasks=True)
 
 
-@tasks.route('/view_task/<id>', methods=['GET', 'POST'])
+@equipment.route('/view_task/<id>', methods=['GET', 'POST'])
 @login_required
 def view_task(id):
     _task = MyTaskModel.query.filter_by(id=id, users_id=current_user.id).first()
 
     if not _task:
         flash('Oops! Something went wrong!.', 'danger')
-        return redirect(url_for("tasks.my_tasks"))
+        return redirect(url_for("equipment.my_tasks"))
 
-    return render_template('tasks/view_task.html',
+    return render_template('equipment/view_task.html',
                            task=_task)
 
 
-@tasks.route('/add_task', methods=['GET', 'POST'])
+@equipment.route('/add_task', methods=['GET', 'POST'])
 @login_required
 def add_task():
 
@@ -55,35 +55,35 @@ def add_task():
 
         db.session.refresh(_task)
         flash('Your Device is added successfully!', 'success')
-        return redirect(url_for("tasks.my_tasks"))
+        return redirect(url_for("equipment.my_tasks"))
 
-    return render_template('tasks/add_task.html', form=_form, _active_tasks=True)
+    return render_template('equipment/add_task.html', form=_form, _active_tasks=True)
 
 
-@tasks.route('/delete_task/<id>', methods=['GET', 'POST'])
+@equipment.route('/delete_task/<id>', methods=['GET', 'POST'])
 @login_required
 def delete_task(id):
     _task = MyTaskModel.query.filter_by(id=id, users_id=current_user.id).first()
 
     if not _task:
         flash('Oops! Something went wrong!.', 'danger')
-        return redirect(url_for("tasks.my_tasks"))
+        return redirect(url_for("equipment.my_tasks"))
 
     db.session.delete(_task)
     db.session.commit()
 
     flash('Your Device is deleted successfully!', 'success')
-    return redirect(url_for('tasks.my_tasks'))
+    return redirect(url_for('equipment.my_tasks'))
 
 
-@tasks.route('/edit_task/<id>', methods=['GET', 'POST'])
+@equipment.route('/edit_task/<id>', methods=['GET', 'POST'])
 @login_required
 def edit_task(id):
     _task = MyTaskModel.query.filter_by(id=id, users_id=current_user.id).first()
 
     if not _task:
         flash('Oops! Something went wrong!.', 'danger')
-        return redirect(url_for("tasks.my_tasks"))
+        return redirect(url_for("equipment.my_tasks"))
 
     _form = MyTaskForm(obj=_task)
 
@@ -96,6 +96,6 @@ def edit_task(id):
         db.session.commit()
 
         flash('Your Device updated successfully!', 'success')
-        return redirect(url_for("tasks.my_tasks"))
+        return redirect(url_for("equipment.my_tasks"))
 
-    return render_template('tasks/edit_task.html', form=_form, task=_task, _active_tasks=True)
+    return render_template('equipment/edit_task.html', form=_form, task=_task, _active_tasks=True)
