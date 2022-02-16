@@ -11,16 +11,17 @@ from flask_admin.contrib import sqla
 
 class MyTaskModel(db.Model):
 
-    __tablename__ = 'mytask_model'
+    __tablename__ = 'device'
 
     id = Column(db.Integer, primary_key=True)
-
-    task = Column(db.String(2048))
-
-    added_time = Column(db.DateTime, default=get_current_time)
-
-    users_id = Column(db.Integer, db.ForeignKey("users.id"))
-    user = db.relationship("Users", uselist=False, backref="mytask_model")
+    name = Column(db.String(2048))
+    date_calibration_last = Column(db.DateTime, default=get_current_time)
+    date_calibration_until = Column(db.DateTime, default=get_current_time)
+    storage_location_id = Column(db.String(2048))
+    info_text = Column(db.Text)
+    reference_url = Column(db.String(2048))
+    responsibleUserId = Column(db.String(2048))
+    currentUsageId = (ForeignKey = Usage.id)
 
     def __unicode__(self):
         _str = 'ID: %s, Post: %s' % (self.id, self.task)
