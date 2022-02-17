@@ -7,7 +7,7 @@ from flask import Flask
 from .config import DefaultConfig
 from .user import Users, UsersAdmin
 from .settings import settings
-from .tasks import tasks, MyTaskModelAdmin
+from .equipment import tasks, MyTaskModelAdmin
 from .frontend import frontend, ContactUsAdmin
 from .extensions import db, mail, cache, login_manager, admin
 from .utils import INSTANCE_FOLDER_PATH, pretty_date

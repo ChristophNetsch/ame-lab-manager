@@ -54,13 +54,15 @@ class Users(db.Model, UserMixin):
 
     id = Column(db.Integer, primary_key=True)
 
+    name_short = Column(db.String(3))
     name = Column(db.String(STRING_LEN))
 
     email = Column(db.String(STRING_LEN), unique=True)
     email_activation_key = Column(db.String(STRING_LEN))
 
+    usages = db.relationship("UsageModel", backref="users")
+    
     created_time = Column(db.DateTime, default=get_current_time)
-
     _password = Column('password', db.String(100), nullable=False)
 
     def _get_password(self):
