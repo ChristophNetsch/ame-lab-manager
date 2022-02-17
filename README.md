@@ -59,6 +59,13 @@ Check `emails/__init__.py` to see how emails being sent in `async` mode
 
 ## Getting Started
 
+use vscode and python 3.8.x (remember to add python to environmental variable during installation)
+
+check python variable by using
+
+```bash
+$ python --version
+```
 clone the project
 
 ```bash
@@ -66,11 +73,12 @@ $ git clone https://github.com/ChristophNetsch/ame-lab-manager
 $ cd ame-lab-manager
 ```
 
-create virtual environment using python3 and activate it (keep it outside our project directory)
+create virtual environment using the virtualenv package and activate it (install virtualenv using pip if needed. keep it outside our project directory)
 
 ```bash
-$ python3 -m venv /path/to/your/virtual/environment
-$ source <path/to/venv>/bin/activate
+$ sudo pip install virtualenv
+$ virtualenv /path/to/your/virtual/environment
+$ <path/to/venv>/bin/activate
 ```
 
 install dependencies in virtualenv
@@ -79,9 +87,10 @@ install dependencies in virtualenv
 $ pip install -r requirements.txt
 ```
 
-initialize database and get two default users (admin & demo), check `manage.py` for details
+set environment variable for flask and initialize database and get two default users (admin & demo), check `manage.py` for details
 
 ```bash
+$ $env:FLASK_APP = "manage.py"
 $ flask initdb
 ```
 
