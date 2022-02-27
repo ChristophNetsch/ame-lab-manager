@@ -7,7 +7,7 @@ from flask import Flask
 from .config import DefaultConfig
 from .user import Users, UsersAdmin
 from .settings import settings
-from .equipment import equipment, MyTaskModelAdmin
+from .equipment import equipment
 from .frontend import frontend, ContactUsAdmin
 from .extensions import db, mail, cache, login_manager, admin
 from .utils import INSTANCE_FOLDER_PATH, pretty_date
@@ -72,7 +72,6 @@ def configure_extensions(app):
     # flask-admin
     admin.add_view(ContactUsAdmin(db.session))
     admin.add_view(UsersAdmin(db.session))
-    admin.add_view(MyTaskModelAdmin(db.session))
     admin.init_app(app)
 
     @login_manager.user_loader

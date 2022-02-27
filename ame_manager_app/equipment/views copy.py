@@ -50,7 +50,7 @@ def view_equipment(id):
 
 @equipment.route('/add_equipment', methods=['GET', 'POST'])
 @login_required
-def add_task():
+def add_equipment():
 
     _equipment = EquipmentModel()
 

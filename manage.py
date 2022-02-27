@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import dotenv
+
 dotenv.load_dotenv()
 
 from sqlalchemy.orm.mapper import configure_mappers
@@ -7,7 +8,7 @@ from sqlalchemy.orm.mapper import configure_mappers
 from ame_manager_app import create_app
 from ame_manager_app.extensions import db
 from ame_manager_app.user import Users, ADMIN, USER, ACTIVE
-from ame_manager_app.equipment import MyTaskModel
+from ame_manager_app.equipment.models import UsageModel
 
 application = create_app()
 
@@ -38,10 +39,10 @@ def initdb():
                      status_code=ACTIVE)
         db.session.add(user)
 
-    for i in range(1, 5):
-        _usage = Users(usage="usage Random Number ## " + str(i), users_id=2)
+    # for i in range(1, 5):
+    #     _usage = UsageModel(usage="usage Random Number ## " + str(i), users_id=2)
 
-        db.session.add(_usage)
+    #     db.session.add(_usage)
 
     db.session.commit()
 
