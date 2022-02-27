@@ -20,7 +20,8 @@ def initdb():
     configure_mappers()
     db.create_all()
 
-    admin = Users(name='Admin AME Lab Manager',
+    admin = Users(name='Admin CVE AME Lab Manager',
+                  name_short="CNH",
                   email=u'cnh@csem.ch',
                   password=u'adminpassword',
                   role_code=ADMIN,
@@ -30,6 +31,7 @@ def initdb():
 
     for i in range(1, 2):
         user = Users(name='Micha Landoll',
+                     name_short="MML",
                      email=u'landoll@ame.rwth-aachen',
                      password=u'demopassword',
                      role_code=USER,
@@ -37,9 +39,9 @@ def initdb():
         db.session.add(user)
 
     for i in range(1, 5):
-        _task = MyTaskModel(task="Task Random Number ## " + str(i), users_id=2)
+        _usage = Users(usage="usage Random Number ## " + str(i), users_id=2)
 
-        db.session.add(_task)
+        db.session.add(_usage)
 
     db.session.commit()
 

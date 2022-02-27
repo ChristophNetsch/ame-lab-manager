@@ -59,6 +59,11 @@ class Users(db.Model, UserMixin):
     email = Column(db.String(STRING_LEN), unique=True)
     email_activation_key = Column(db.String(STRING_LEN))
 
+    usages = db.relationship("UsageModel", backref="users")
+    responsible_equipments = db.relationship("EquipmentModel", backref="users")
+    responsible_storages = db.relationship("StorageModel", backref="users")
+    responsible_rooms = db.relationship("RoomModel", backref="users")
+
     created_time = Column(db.DateTime, default=get_current_time)
 
     _password = Column('password', db.String(100), nullable=False)
