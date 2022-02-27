@@ -10,7 +10,7 @@ from flask_login import (login_required, login_user, current_user,
                          logout_user, login_fresh)
 
 
-from ..tasks import MyTaskForm
+from ..equipment import MyTaskForm
 from ..user import Users, ACTIVE
 from ..extensions import db, login_manager
 from .forms import (SignupForm, LoginForm, RecoverPasswordForm,
