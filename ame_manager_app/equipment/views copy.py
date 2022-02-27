@@ -4,9 +4,10 @@ from flask import Blueprint, render_template, flash, redirect, url_for
 from flask_login import login_required, current_user
 
 from ..extensions import db
+from ..utils import get_current_time
 
 from .forms import MyTaskForm
-from .models import EquipmentModel
+from .models import EquipmentModel, UsageModel
 
 
 equipment = Blueprint('equipment', __name__, url_prefix='/equipment')
@@ -16,86 +17,118 @@ equipment = Blueprint('equipment', __name__, url_prefix='/equipment')
 @login_required
 def borrowed_equipment():
 
-    _all_tasks = EquipmentModel.query.filter_by(users_id=current_user.id).all()
+    _borrowed_devices = EquipmentModel.query.filter_by(current_user_id=current_user.id).all()
 
     return render_template('equipment/my_tasks.html',
-                           all_tasks=_all_tasks,
+                           all_tasks=_borrowed_devices,
                            _active_tasks=True)
 
 
-@equipment.route('/view_task/<id>', methods=['GET', 'POST'])
+@equipment.route('/equipment-responsibilities', methods=['GET', 'POST'])
 @login_required
-def view_task(id):
-    _task = MyTaskModel.query.filter_by(id=id, users_id=current_user.id).first()
+def responsible_equipment():
 
-    if not _task:
+    _borrowed_devices = EquipmentModel.query.filter_by(responsible_user_id=current_user.id).all()
+
+    return render_template('equipment/my_tasks.html',
+                           all_tasks=_borrowed_devices,
+                           _active_tasks=True)
+    
+
+@equipment.route('/view_equipment/<id>', methods=['GET', 'POST'])
+@login_required
+def view_equipment(id):
+    _equipment = EquipmentModel.query.filter_by(id=id).first()
+
+    if not _equipment:
         flash('Oops! Something went wrong!.', 'danger')
-        return redirect(url_for("equipment.my_tasks"))
+        return redirect(url_for("equipment.borrowed_equipment"))
 
     return render_template('equipment/view_task.html',
-                           task=_task)
+                           task=_equipment)
 
 
-@equipment.route('/add_task', methods=['GET', 'POST'])
+@equipment.route('/add_equipment', methods=['GET', 'POST'])
 @login_required
 def add_task():
 
-    _task = MyTaskModel()
+    _equipment = EquipmentModel()
 
     _form = MyTaskForm()
 
     if _form.validate_on_submit():
 
-        _task.users_id = current_user.id
+        _equipment.users_id = current_user.id
 
-        _form.populate_obj(_task)
+        _form.populate_obj(_equipment)
 
-        db.session.add(_task)
+        db.session.add(_equipment)
         db.session.commit()
 
-        db.session.refresh(_task)
+        db.session.refresh(_equipment)
         flash('Your Device is added successfully!', 'success')
-        return redirect(url_for("equipment.my_tasks"))
+        return redirect(url_for("equipment.borrowed_equipment"))
 
     return render_template('equipment/add_task.html', form=_form, _active_tasks=True)
 
 
-@equipment.route('/delete_task/<id>', methods=['GET', 'POST'])
+@equipment.route('/borrow-equipment/<id>', methods=['GET', 'POST'])
 @login_required
-def delete_task(id):
-    _task = MyTaskModel.query.filter_by(id=id, users_id=current_user.id).first()
+def return_equipment(id):
+    _equipment = EquipmentModel.query.filter_by(id=id, is_in_use=True).last()
 
-    if not _task:
+    if not _equipment:
         flash('Oops! Something went wrong!.', 'danger')
         return redirect(url_for("equipment.my_tasks"))
-
-    db.session.delete(_task)
+    
+    _usage = UsageModel()
+    _equipment.usage.is_in_use = False    
+    _equipment.usage.return_date = get_current_time()
+    
+    db.session.add(_equipment)
     db.session.commit()
 
     flash('Your Device is deleted successfully!', 'success')
     return redirect(url_for('equipment.my_tasks'))
 
 
-@equipment.route('/edit_task/<id>', methods=['GET', 'POST'])
+@equipment.route('/return-equipment/<id>', methods=['GET', 'POST'])
 @login_required
-def edit_task(id):
-    _task = MyTaskModel.query.filter_by(id=id, users_id=current_user.id).first()
+def return_equipment(id):
+    _equipment = EquipmentModel.query.filter_by(id=id, is_in_use=True).last()
 
-    if not _task:
+    if not _equipment:
+        flash('Oops! Something went wrong!.', 'danger')
+        return redirect(url_for("equipment.my_tasks"))
+    
+    _equipment.usage.is_in_use = False    
+    _equipment.usage.return_date = get_current_time()
+    
+    db.session.add(_equipment)
+    db.session.commit()
+
+    flash('Your Device is deleted successfully!', 'success')
+    return redirect(url_for('equipment.my_tasks'))
+
+
+@equipment.route('/edit-equipment/<id>', methods=['GET', 'POST'])
+@login_required
+def edit_equipment(id):
+    _equipment = EquipmentModel.query.filter_by(id=id).first()
+
+    if not _equipment:
         flash('Oops! Something went wrong!.', 'danger')
         return redirect(url_for("equipment.my_tasks"))
 
-    _form = MyTaskForm(obj=_task)
+    _form = MyTaskForm(obj=_equipment)
 
     if _form.validate_on_submit():
+        _form.populate_obj(_equipment)
 
-        _task.users_id = current_user.id
-        _form.populate_obj(_task)
-
-        db.session.add(_task)
+        db.session.add(_equipment)
         db.session.commit()
 
         flash('Your Device updated successfully!', 'success')
         return redirect(url_for("equipment.my_tasks"))
 
-    return render_template('equipment/edit_task.html', form=_form, task=_task, _active_tasks=True)
+    return render_template('equipment/edit_task.html', form=_form, task=_equipment, _active_tasks=True)
