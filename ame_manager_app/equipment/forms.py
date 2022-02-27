@@ -6,5 +6,5 @@ from wtforms.validators import InputRequired, Length
 
 
 class MyTaskForm(FlaskForm):
-    task = TextAreaField(u'Your Device', [InputRequired(), Length(5, 2048)])
-    submit = SubmitField(u'Save Device')
+    task = TextAreaField("Your Device", [InputRequired(), Length(5, 2048)])
+    submit = SubmitField("Save Device")

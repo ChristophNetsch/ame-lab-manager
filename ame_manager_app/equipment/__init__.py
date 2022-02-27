@@ -1,4 +1,4 @@
 # -*- coding: utf-8 -*-
 
-from .views import equipment
 from .forms import MyTaskForm
+from .views import equipment

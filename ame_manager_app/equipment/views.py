@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from flask import Blueprint, render_template, flash, redirect, url_for
-from flask_login import login_required, current_user
+from flask import Blueprint, flash, redirect, render_template, url_for
+from flask_login import current_user, login_required
 
 from ..extensions import db
-
 from .forms import MyTaskForm
 
-equipment = Blueprint('equipment', __name__, url_prefix='/equipment')
+equipment = Blueprint("equipment", __name__, url_prefix="/equipment")
 
 
 # @equipment.route('/my_tasks', methods=['GET', 'POST'])

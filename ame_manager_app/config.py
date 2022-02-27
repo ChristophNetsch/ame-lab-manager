@@ -13,12 +13,12 @@ class BaseConfig(object):
     PROJECT_ROOT = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
 
     BASE_URL = "https://ame-manager.local"
-    ADMIN_EMAILS = ['admin@ame-manager.local']
+    ADMIN_EMAILS = ["admin@ame-manager.local"]
 
     DEBUG = False
     TESTING = False
 
-    SECRET_KEY = 'rf942ut8hg43ztyr579890ysrt'
+    SECRET_KEY = "rf942ut8hg43ztyr579890ysrt"
 
 
 class DefaultConfig(BaseConfig):
@@ -30,13 +30,13 @@ class DefaultConfig(BaseConfig):
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # SQLITE for production
-    SQLALCHEMY_DATABASE_URI = f'sqlite:///{INSTANCE_FOLDER_PATH}/db.sqlite'
+    SQLALCHEMY_DATABASE_URI = f"sqlite:///{INSTANCE_FOLDER_PATH}/db.sqlite"
 
     # POSTGRESQL for production
     # SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://postgres:pass@ip/dbname'
 
     # Flask-cache
-    CACHE_TYPE = 'simple'
+    CACHE_TYPE = "simple"
     CACHE_DEFAULT_TIMEOUT = 60
 
     # Flask-mail

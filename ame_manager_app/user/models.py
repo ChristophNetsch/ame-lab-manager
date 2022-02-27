@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
 
+from flask_admin.contrib import sqla
+from flask_login import UserMixin, current_user
 from sqlalchemy import Column, types
 from sqlalchemy.ext.mutable import Mutable
-from werkzeug.security import generate_password_hash, check_password_hash
-from flask_login import UserMixin
+from werkzeug.security import check_password_hash, generate_password_hash
 
 from ..extensions import db
-from ..utils import get_current_time, STRING_LEN
-from .constants import USER, USER_ROLE, ADMIN, INACTIVE, USER_STATUS
-
-from flask_login import current_user
-from flask_admin.contrib import sqla
+from ..utils import STRING_LEN, get_current_time
+from .constants import ADMIN, INACTIVE, USER, USER_ROLE, USER_STATUS
 
 
 class DenormalizedText(Mutable, types.TypeDecorator):
@@ -50,7 +48,7 @@ class DenormalizedText(Mutable, types.TypeDecorator):
 
 class Users(db.Model, UserMixin):
 
-    __tablename__ = 'user'
+    __tablename__ = "user"
 
     id = Column(db.Integer, primary_key=True)
 
@@ -60,34 +58,39 @@ class Users(db.Model, UserMixin):
     email = Column(db.String(STRING_LEN), unique=True)
     email_activation_key = Column(db.String(STRING_LEN))
 
-    responsible_equipments = db.relationship("EquipmentModel", 
-                                             backref=db.backref("responsible_user", lazy="joined"),
-                                             lazy="select",
-                                             )
+    responsible_equipments = db.relationship(
+        "EquipmentModel",
+        backref=db.backref("responsible_user", lazy="joined"),
+        lazy="select",
+    )
 
-    responsible_storages = db.relationship("StorageModel", 
-                                             backref=db.backref("responsible_user", lazy="joined"),
-                                             lazy="select",
-                                             )
+    responsible_storages = db.relationship(
+        "StorageModel",
+        backref=db.backref("responsible_user", lazy="joined"),
+        lazy="select",
+    )
 
-    responsible_rooms = db.relationship("RoomModel", 
-                                             backref=db.backref("responsible_user", lazy="joined"),
-                                             lazy="select",
-                                             )
-    
-    comments = db.relationship("CommentModel", 
-                                backref=db.backref("user", lazy="joined"),
-                                lazy="select",
-                                )  
-      
-    usages = db.relationship("UsageModel", 
-                                backref=db.backref("user", lazy="joined"),
-                                lazy="select",
-                                )
-    
+    responsible_rooms = db.relationship(
+        "RoomModel",
+        backref=db.backref("responsible_user", lazy="joined"),
+        lazy="select",
+    )
+
+    comments = db.relationship(
+        "CommentModel",
+        backref=db.backref("user", lazy="joined"),
+        lazy="select",
+    )
+
+    usages = db.relationship(
+        "UsageModel",
+        backref=db.backref("user", lazy="joined"),
+        lazy="select",
+    )
+
     created_time = Column(db.DateTime, default=get_current_time)
 
-    _password = Column('password', db.String(100), nullable=False)
+    _password = Column("password", db.String(100), nullable=False)
 
     def _get_password(self):
         return self._password
@@ -96,9 +99,9 @@ class Users(db.Model, UserMixin):
         self._password = generate_password_hash(password)
 
     # Hide password encryption by exposing password field only.
-    password = db.synonym('_password',
-                          descriptor=property(_get_password,
-                                              _set_password))
+    password = db.synonym(
+        "_password", descriptor=property(_get_password, _set_password)
+    )
 
     def check_password(self, password):
         if self.password is None:
@@ -145,49 +148,55 @@ class Users(db.Model, UserMixin):
         return Users.query.filter(Users.email == email).count() == 0
 
     def __unicode__(self):
-        _str = '%s. %s' % (self.id, self.name)
+        _str = "%s. %s" % (self.id, self.name)
         return str(_str)
 
 
 # Customized User model admin
 class UsersAdmin(sqla.ModelView):
-    column_list = ('id', 'name', 'email', 'role_code', 'status_code',
-                   'created_time', 'activation_key')
-    column_sortable_list = ('id', 'name', 'email', 'created_time',
-                            'role_code', 'status_code')
-    column_searchable_list = ('email', Users.email)
-    column_filters = ('id', 'name', 'email', 'created_time', 'role_code')
+    column_list = (
+        "id",
+        "name",
+        "email",
+        "role_code",
+        "status_code",
+        "created_time",
+        "activation_key",
+    )
+    column_sortable_list = (
+        "id",
+        "name",
+        "email",
+        "created_time",
+        "role_code",
+        "status_code",
+    )
+    column_searchable_list = ("email", Users.email)
+    column_filters = ("id", "name", "email", "created_time", "role_code")
 
-    form_excluded_columns = ('password')
+    form_excluded_columns = "password"
 
     form_choices = {
-        'role_code': [
-            ('2', 'User'),
-            ('0', 'Admin')
+        "role_code": [("2", "User"), ("0", "Admin")],
+        "status_code": [
+            ("0", "Inactive Account"),
+            ("1", "New Account"),
+            ("2", "Active Account"),
         ],
-        'status_code': [
-            ('0', 'Inactive Account'),
-            ('1', 'New Account'),
-            ('2', 'Active Account')
-        ]
     }
 
     column_choices = {
-        'role_code': [
-            (2, 'User'),
-            (1, 'Staff'),
-            (0, 'Admin')
+        "role_code": [(2, "User"), (1, "Staff"), (0, "Admin")],
+        "status_code": [
+            (0, "Inactive Account"),
+            (1, "New Account"),
+            (2, "Active Account"),
         ],
-        'status_code': [
-            (0, 'Inactive Account'),
-            (1, 'New Account'),
-            (2, 'Active Account')
-        ]
     }
 
     def __init__(self, session):
         super(UsersAdmin, self).__init__(Users, session)
 
     def is_accessible(self):
-        if current_user.role == 'admin':
+        if current_user.role == "admin":
             return current_user.is_authenticated()
