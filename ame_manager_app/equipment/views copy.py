@@ -58,7 +58,7 @@ def add_equipment():
 
     if _form.validate_on_submit():
 
-        _equipment.users_id = current_user.id
+        _equipment.user_id = current_user.id
 
         _form.populate_obj(_equipment)
 

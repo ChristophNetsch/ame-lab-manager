@@ -50,7 +50,7 @@ class DenormalizedText(Mutable, types.TypeDecorator):
 
 class Users(db.Model, UserMixin):
 
-    __tablename__ = 'users'
+    __tablename__ = 'user'
 
     id = Column(db.Integer, primary_key=True)
 
@@ -60,10 +60,31 @@ class Users(db.Model, UserMixin):
     email = Column(db.String(STRING_LEN), unique=True)
     email_activation_key = Column(db.String(STRING_LEN))
 
-    # responsible_equipments = db.relationship("EquipmentModel", backref="users")
-    # responsible_storages = db.relationship("StorageModel", backref="users")
-    # responsible_rooms = db.relationship("RoomModel", backref="users")
+    responsible_equipments = db.relationship("EquipmentModel", 
+                                             backref=db.backref("responsible_user", lazy="joined"),
+                                             lazy="select",
+                                             )
 
+    responsible_storages = db.relationship("StorageModel", 
+                                             backref=db.backref("responsible_user", lazy="joined"),
+                                             lazy="select",
+                                             )
+
+    responsible_rooms = db.relationship("RoomModel", 
+                                             backref=db.backref("responsible_user", lazy="joined"),
+                                             lazy="select",
+                                             )
+    
+    comments = db.relationship("CommentModel", 
+                                backref=db.backref("user", lazy="joined"),
+                                lazy="select",
+                                )  
+      
+    usages = db.relationship("UsageModel", 
+                                backref=db.backref("user", lazy="joined"),
+                                lazy="select",
+                                )
+    
     created_time = Column(db.DateTime, default=get_current_time)
 
     _password = Column('password', db.String(100), nullable=False)

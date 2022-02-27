@@ -24,9 +24,11 @@ PASSWORD_LEN_MAX = 16
 STRING_LEN = 64
 
 
-def get_current_time():
+def get_current_time() -> datetime.datetime:
     return datetime.datetime.utcnow()
 
+def get_current_time_with_offset_days(num_days:int) -> datetime.datetime:
+    return datetime.datetime.utcnow() + datetime.timedelta(days=num_days)
 
 def pretty_date(dt, default=None):
     # Returns string representing "time since" eg 3 days ago, 5 hours ago etc.
