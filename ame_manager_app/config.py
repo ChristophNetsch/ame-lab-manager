@@ -49,3 +49,6 @@ class DefaultConfig(BaseConfig):
     MAIL_USERNAME = "admin@ame-manager.local"
     MAIL_PASSWORD = ""
     MAIL_DEFAULT_SENDER = MAIL_USERNAME
+    
+    # Borrowing
+    MAX_DAYS_BORROW = 365

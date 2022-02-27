@@ -1,4 +1,4 @@
 # -*- coding: utf-8 -*-
 
-from .forms import MyTaskForm
+from .forms import BorrowEquipmentForm, SearchEquipmentForm
 from .views import equipment

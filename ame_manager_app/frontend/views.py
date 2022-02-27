@@ -9,7 +9,7 @@ from flask_login import (current_user, login_fresh, login_required, login_user,
 from itsdangerous import URLSafeSerializer
 
 from ..emails import send_async_email
-from ..equipment import MyTaskForm
+from ..equipment import SearchEquipmentForm
 from ..extensions import db, login_manager
 from ..user import ACTIVE, Users
 from .forms import (ChangePasswordForm, ContactUsForm, LoginForm,
@@ -23,7 +23,7 @@ frontend = Blueprint("frontend", __name__)
 @login_required
 def dashboard():
 
-    _task_form = MyTaskForm()
+    _task_form = SearchEquipmentForm()
 
     return render_template(
         "dashboard/dashboard.html", task_form=_task_form, _active_dash=True

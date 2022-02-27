@@ -41,12 +41,20 @@ class EquipmentModel(db.Model):
         return str(_str)
 
     def __repr__(self):
-        return f"{self.__class__.__name__}(name={self.name})"
+        return f"{self.name} (id #{self.id}))"
 
     def is_in_use(self):
         return self.get_current_active_usage() is not None
 
-    def get_current_active_usage(self):
+    def is_in_use_by(self, user:Users):
+        current_active_usage = self.get_current_active_usage()
+        if current_active_usage is None:
+            return False
+        if not current_active_usage.user_id == user.id:
+            return False
+        return True
+            
+    def get_current_active_usage(self) -> UsageModel:
         usages = [
             u for u in sorted(self.usages, key=lambda x: x.date_start) if u.is_in_use
         ]
@@ -111,8 +119,7 @@ class CommentModel(db.Model):
         return str(_str)
 
     def __repr__(self):
-        return f"{self.__class__.__name__}(name={self.text}, date={self.date}, user={self.user.name}, is_comment_for_responsible_admin={self.is_comment_for_responsible_admin}, is_comment_for_users={self.is_comment_for_users})"
-
+        return f"{self.text} (id #{self.id}, date:{self.date}))"
 
 class UsageModel(db.Model):
 
@@ -134,7 +141,7 @@ class UsageModel(db.Model):
         return str(_str)
 
     def __repr__(self):
-        return f"{self.__class__.__name__}(name={self.name}, equipment={self.equipment.name}, user={self.user.name}, date_start={self.date_start})"
+        return f"{self.name} (equipment:{self.equipment.name}, user:{self.user.name}, date_start:{self.date_start})"
 
 
 class StorageModel(db.Model):
@@ -163,7 +170,9 @@ class StorageModel(db.Model):
     def __unicode__(self):
         _str = "ID: %s, Post: %s" % (self.id, self.task)
         return str(_str)
-
+    
+    def __repr__(self):
+        return f"{self.room.name} {self.name}"
 
 class RoomModel(db.Model):
 
@@ -184,14 +193,15 @@ class RoomModel(db.Model):
     def __unicode__(self):
         _str = "ID: %s, Post: %s" % (self.id, self.task)
         return str(_str)
+    
+    def __repr__(self):
+        return self.name
 
 
 # Customized UsageModelAdmin model admin
 class UsageModelAdmin(sqla.ModelView):
-    column_sortable_list = ("id", "user_id", "added_time")
-
-    column_filters = ("id", "user_id", "added_time")
-
+    form_excluded_columns = ("is_in_use", "date_end")
+    
     def __init__(self, session):
         super(UsageModelAdmin, self).__init__(UsageModel, session)
 

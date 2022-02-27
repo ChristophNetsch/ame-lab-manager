@@ -4,6 +4,9 @@ import dotenv
 dotenv.load_dotenv()
 
 from flask import Flask
+from flask_admin.contrib import sqla
+
+from ame_manager_app.equipment.models import CommentModel, EquipmentModel, StorageModel, RoomModel, UsageModel, UsageModelAdmin
 
 from .config import DefaultConfig
 from .equipment import equipment
@@ -69,6 +72,11 @@ def configure_extensions(app):
     # flask-admin
     admin.add_view(ContactUsAdmin(db.session))
     admin.add_view(UsersAdmin(db.session))
+    admin.add_view(sqla.ModelView(EquipmentModel, db.session))
+    admin.add_view(sqla.ModelView(StorageModel, db.session))
+    admin.add_view(sqla.ModelView(RoomModel, db.session))
+    admin.add_view(UsageModelAdmin(db.session))
+    admin.add_view(sqla.ModelView(CommentModel, db.session))
     admin.init_app(app)
 
     @login_manager.user_loader
