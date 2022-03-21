@@ -1,26 +1,25 @@
 # -*- coding: utf-8 -*-
 import dotenv
+
 dotenv.load_dotenv()
 
 from flask import Flask
+from flask_admin.contrib import sqla
+
+from ame_manager_app.equipment.models import CommentModel, EquipmentModel, StorageModel, RoomModel, UsageModel, UsageModelAdmin
 
 from .config import DefaultConfig
-from .user import Users, UsersAdmin
+from .equipment import equipment
+from .extensions import admin, cache, db, login_manager, mail
+from .frontend import ContactUsAdmin, frontend
 from .settings import settings
-from .tasks import tasks, MyTaskModelAdmin
-from .frontend import frontend, ContactUsAdmin
-from .extensions import db, mail, cache, login_manager, admin
+from .user import Users, UsersAdmin
 from .utils import INSTANCE_FOLDER_PATH, pretty_date
 
-
 # For import *
-__all__ = ['create_app']
+__all__ = ["create_app"]
 
-DEFAULT_BLUEPRINTS = (
-    frontend,
-    settings,
-    tasks
-)
+DEFAULT_BLUEPRINTS = (frontend, settings, equipment)
 
 
 def create_app(config=None, app_name=None, blueprints=None):
@@ -31,10 +30,11 @@ def create_app(config=None, app_name=None, blueprints=None):
     if blueprints is None:
         blueprints = DEFAULT_BLUEPRINTS
 
-    app = Flask(app_name,
-                instance_path=INSTANCE_FOLDER_PATH,
-                instance_relative_config=True,
-                )
+    app = Flask(
+        app_name,
+        instance_path=INSTANCE_FOLDER_PATH,
+        instance_relative_config=True,
+    )
 
     configure_app(app, config)
     configure_hook(app)
@@ -52,7 +52,7 @@ def configure_app(app, config=None):
 
     app.config.from_object(DefaultConfig)
 
-    app.config.from_pyfile('production.cfg', silent=True)
+    app.config.from_pyfile("production.cfg", silent=True)
 
     if config:
         app.config.from_object(config)
@@ -72,12 +72,17 @@ def configure_extensions(app):
     # flask-admin
     admin.add_view(ContactUsAdmin(db.session))
     admin.add_view(UsersAdmin(db.session))
-    admin.add_view(MyTaskModelAdmin(db.session))
+    admin.add_view(sqla.ModelView(EquipmentModel, db.session))
+    admin.add_view(sqla.ModelView(StorageModel, db.session))
+    admin.add_view(sqla.ModelView(RoomModel, db.session))
+    admin.add_view(UsageModelAdmin(db.session))
+    admin.add_view(sqla.ModelView(CommentModel, db.session))
     admin.init_app(app)
 
     @login_manager.user_loader
     def load_user(id):
         return Users.query.get(id)
+
     login_manager.setup_app(app)
 
 
@@ -89,13 +94,12 @@ def configure_blueprints(app, blueprints):
 
 
 def configure_template_filters(app):
-
     @app.template_filter()
     def _pretty_date(value):
         return pretty_date(value)
 
     @app.template_filter()
-    def format_date(value, format='%Y-%m-%d'):
+    def format_date(value, format="%Y-%m-%d"):
         return value.strftime(format)
 
 
@@ -116,7 +120,6 @@ def configure_hook(app):
 
 
 def configure_error_handlers(app):
-
     @app.errorhandler(403)
     def forbidden_page(error):
         return "Oops! You don't have permission to access this page.", 403

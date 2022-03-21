@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from flask_sqlalchemy import SQLAlchemy
-from flask_mail import Mail
-from flask_caching import Cache
-from flask_login import LoginManager
 from flask_admin import Admin, AdminIndexView
 from flask_admin.menu import MenuLink
-
+from flask_caching import Cache
+from flask_login import LoginManager
+from flask_mail import Mail
+from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
@@ -23,11 +22,27 @@ class HomeView(AdminIndexView):
     def is_visible(self):
         return False
 
+
 # Config default flask-admin view
 
 
-admin = Admin(name='AME Lab Manager Admin', template_mode='bootstrap3', index_view=HomeView(name='Home'))
+admin = Admin(
+    name="AME Lab Manager Admin",
+    template_mode="bootstrap3",
+    index_view=HomeView(name="Home"),
+)
 
-admin.add_link(MenuLink(name='Back to Dashboard', url='/dashboard', icon_type='glyph', icon_value='glyphicon-circle-arrow-left'))
+admin.add_link(
+    MenuLink(
+        name="Back to Dashboard",
+        url="/dashboard",
+        icon_type="glyph",
+        icon_value="glyphicon-circle-arrow-left",
+    )
+)
 
-admin.add_link(MenuLink(name='Logout', url='/logout', icon_type='glyph', icon_value='glyphicon-log-out'))
+admin.add_link(
+    MenuLink(
+        name="Logout", url="/logout", icon_type="glyph", icon_value="glyphicon-log-out"
+    )
+)

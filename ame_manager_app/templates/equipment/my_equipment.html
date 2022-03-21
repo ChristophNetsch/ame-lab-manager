@@ -1,6 +1,6 @@
 {% from "macros/_form.html" import render_form %}
 
-{% set page_title = 'My Tasks' %}
+{% set page_title = 'My Equipment' %}
 
 {% extends 'layouts/base.html' %}
 
@@ -22,16 +22,15 @@
                             <td>{{ task.task }}</td>
                             <td>
                               <div class="btn-group" role="group" aria-label="Task Actions">
-                                <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-primary" href="{{ url_for('tasks.view_task', id=task.id) }}">View</a>
-                                <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-secondary" href="{{ url_for('tasks.edit_task', id=task.id) }}">Edit</a>
-                                <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-danger" href="{{ url_for('tasks.delete_task', id=task.id) }}">Delete</a>
+                                <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-primary" href="{{ url_for('equipment.view_task', id=task.id) }}">View</a>
+                                <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-secondary" href="{{ url_for('equipment.edit_task', id=task.id) }}">Edit</a>
+                                <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-danger" href="{{ url_for('equipment.delete_task', id=task.id) }}">Delete</a>
                               </div>
                             </td>
                           </tr>
                           {% endfor %}
                         {% else %}
                           <tr>
-                            <td>No Task Added. Please <a href="{{ url_for('tasks.add_task')}}">add a task</a></td><td></td>
                           </tr>
                         {% endif %}
                       </tbody>
