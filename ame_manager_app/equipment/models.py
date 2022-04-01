@@ -16,22 +16,35 @@ class EquipmentModel(db.Model):
     __tablename__ = "equipment"
 
     id = Column(db.Integer, primary_key=True)
+    id_lab= Column(db.Integer)
     name = Column(db.String(2048))
-    date_calibration_last = Column(db.DateTime)
-    date_calibration_until = Column(db.DateTime)
-    storage_location_id = Column(db.Integer, db.ForeignKey("storage_location.id"))
-    info_text = Column(db.Text)
-    reference_url = Column(db.String(2048))
-    is_usable = Column(db.Boolean)
     responsible_user_id = Column(db.Integer, db.ForeignKey("user.id"))
+    info_text = Column(db.Text)
+    storage_location_id = Column(db.Integer, db.ForeignKey("storage_location.id")) # original location not current
+    reference_url = Column(db.String(2048)) # labmanager
+    is_usable = Column(db.Boolean)
+    is_calibration_nessessary = Column(db.Boolean)
+    is_briefing_nessessary = Column(db.Boolean)
 
-    responsible_rooms = db.relationship(
-        "CommentModel",
+    calibrations = db.relationship(
+        "CalibrationModel",
+        backref=db.backref("equipment", lazy="joined"),
+        lazy="select",
+    )
+    # ??? comments?
+    responsible_rooms = db.relationship(  
+        "CommentModel",     
         backref=db.backref("equipment", lazy="joined"),
         lazy="select",
     )
     usages = db.relationship(
         "UsageModel",
+        backref=db.backref("equipment", lazy="joined"),
+        lazy="select",
+    )
+    # Einweisungen
+    briefings = db.relationship(
+        "BriefingModel",
         backref=db.backref("equipment", lazy="joined"),
         lazy="select",
     )
@@ -121,6 +134,43 @@ class CommentModel(db.Model):
     def __repr__(self):
         return f"{self.text} (id #{self.id}, date:{self.date}))"
 
+class CalibrationModel(db.Model):
+
+    __tablename__ = "calibration"
+
+    id = Column(db.Integer, primary_key=True)
+    user_id = Column(db.Integer, db.ForeignKey("user.id"))
+    date = Column(db.DateTime, default=get_current_time)
+    equipment_id = Column(db.Integer, db.ForeignKey("equipment.id"))
+    text = Column(db.Text)
+    date_until= Column(db.Date)
+
+    def __unicode__(self):
+        _str = "ID: %s, Post: %s" % (self.id, self.task)
+        return str(_str)
+
+    def __repr__(self):
+        return f"{self.text} (id #{self.id}, date:{self.date}))"
+
+class BriefingModel(db.Model):
+
+    __tablename__ = "briefing"
+
+    id = Column(db.Integer, primary_key=True)
+    user_id = Column(db.Integer, db.ForeignKey("user.id"))
+    briefer_id= Column(db.Integer, db.ForeignKey("user.id"))
+    date = Column(db.DateTime, default=get_current_time)
+    equipment_id = Column(db.Integer, db.ForeignKey("equipment.id"))
+    text = Column(db.Text)
+    date_until= Column(db.Date)
+
+    def __unicode__(self):
+        _str = "ID: %s, Post: %s" % (self.id, self.task)
+        return str(_str)
+
+    def __repr__(self):
+        return f"{self.text} (id #{self.id}, date:{self.date}))"
+
 class UsageModel(db.Model):
 
     __tablename__ = "usage"
@@ -130,10 +180,10 @@ class UsageModel(db.Model):
     date_start = Column(db.DateTime, default=get_current_time)
     date_planned_end = Column(db.DateTime)
     date_end = Column(db.DateTime)
-    usage_location_id = Column(db.Integer, db.ForeignKey("storage_location.id"))
+    usage_location_id = Column(db.Integer, db.ForeignKey("storage_location.id")) 
     equipment_id = Column(db.Integer, db.ForeignKey("equipment.id"))
     user_id = Column(db.Integer, db.ForeignKey("user.id"))
-    reference_url = Column(db.String(2048))
+    reference_url = Column(db.String(2048)) # Wiki
     is_in_use = Column(db.Boolean)
 
     def __unicode__(self):

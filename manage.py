@@ -10,7 +10,7 @@ dotenv.load_dotenv()
 from sqlalchemy.orm.mapper import configure_mappers
 
 from ame_manager_app import create_app
-from ame_manager_app.equipment.models import (CommentModel, EquipmentModel,
+from ame_manager_app.equipment.models import (CalibrationModel, CommentModel, EquipmentModel,
                                               RoomModel, StorageModel,
                                               UsageModel)
 from ame_manager_app.extensions import db
@@ -52,7 +52,7 @@ def inittestdb():
     admin = Users(
         name="Rick",
         name_short="rck",
-        email="rck@ame.rwth-aachen",
+        email="rck@ame.rwth-aachen.de",
         password="adminpassword",
         role_code=ADMIN,
         status_code=ACTIVE,
@@ -63,7 +63,7 @@ def inittestdb():
     user = Users(
         name="Morty",
         name_short="mty",
-        email="mty@ame.rwth-aachen",
+        email="mty@ame.rwth-aachen.de",
         password="demopassword",
         role_code=USER,
         status_code=ACTIVE,
@@ -100,13 +100,9 @@ def inittestdb():
         "microverse battery",
     ]:
         _equipment = EquipmentModel(
-            name=equipment_name,
-            date_calibration_last=get_current_time_with_offset_days(
-                random.randint(-365, -1)
-            ),
-            date_calibration_until=get_current_time_with_offset_days(
-                random.randint(1, 365)
-            ),
+            name=equipment_name,            
+            is_briefing_nessessary = random.choice([True, False]),
+            is_calibration_nessessary=random.choice([True, False]),
             storage_location=random.choice([_storage1, _storage2]),
             is_usable=random.choice([True, False]),
             responsible_user=admin,
@@ -124,6 +120,15 @@ def inittestdb():
             is_comment_for_users=random.choice([True, False]),
         )
         db.session.add(_comment)
+
+    for calibration_text in ["calibration for next two weeks", "device calibrated"]:
+        _calibration = CalibrationModel(
+            user=random.choice([admin, user]),
+            equipment=random.choice(_equipments),
+            text=calibration_text,
+            date_until=get_current_time_with_offset_days(random.randint(1, 365)),
+        )
+        db.session.add(_calibration)
 
     _usages = []
     for _equipment in _equipments:

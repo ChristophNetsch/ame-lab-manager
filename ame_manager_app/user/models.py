@@ -82,6 +82,12 @@ class Users(db.Model, UserMixin):
         lazy="select",
     )
 
+    calibrations = db.relationship(
+        "CalibrationModel",
+        backref=db.backref("user", lazy="joined"),
+        lazy="select",
+    )
+
     usages = db.relationship(
         "UsageModel",
         backref=db.backref("user", lazy="joined"),
