@@ -1,4 +1,4 @@
-# AME Lab Manager
+# CVE AME Lab Manager
 
 This project is forked from Flask-Starter, a boilerplate starter template designed to help you quickstart your Flask web application development. It has all the ready-to-use bare minimum essentials.
 

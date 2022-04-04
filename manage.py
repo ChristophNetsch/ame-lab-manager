@@ -30,7 +30,7 @@ def initdb():
     admin = Users(
         name="admin",
         name_short="xxx",
-        email="landoll@ame.rwth-aachen",
+        email="landoll@ame.rwth-aachen.de",
         password="adminpassword",
         role_code=ADMIN,
         status_code=ACTIVE,
