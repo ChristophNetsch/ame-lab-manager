@@ -31,8 +31,8 @@ class EquipmentModel(db.Model):
         backref=db.backref("equipment", lazy="joined"),
         lazy="select",
     )
-    # ??? comments?
-    responsible_rooms = db.relationship(  
+    ##comment??why?
+    comments = db.relationship(  
         "CommentModel",     
         backref=db.backref("equipment", lazy="joined"),
         lazy="select",

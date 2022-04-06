@@ -1,0 +1,116 @@
+{% from "macros/_form.html" import render_form %}
+
+{% set page_title = 'Storage Page' %}
+
+{% extends 'layouts/base.html' %}
+
+{% block body %}
+<div class="container">
+  <div class="row mt-5">
+    <div class="col-6 offset-3">
+      <div class="card mb-6 box-shadow">
+          <div class="card-body">
+            <p class="card-text">Storage: {{ storage.name }}</p>
+            <p></p>
+            <p class="text-muted">Reference URL: {{ storage.reference_url }}</p>
+            <p class="text-muted">Info text: {{ storage.info_text }}</p>
+            <p class="text-muted">Room location ID: {{ storage.room_id }}</p>
+            <p class="text-muted">Responsible admin: {{ resp_user.name }} ({{ resp_user.email }})</p>
+            </div>
+            <p></p>
+            <p>Stored Equipment: </p>
+            <p>{{ storage.stored_equipment }}</p>
+            <p>Usages: </p>
+            <p>{{ storage.usages }}</p>
+          </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <div class="container">
+    <div class="row mt-5">
+      <div class="col-6 offset-3">
+        <table class="table table-hover">
+                      <thead>
+                        <tr>
+                          <th>Usable Equipment (error)</th>
+                          <th>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% if usable_equipment|length > 0 %}
+                          {% for equipment in usable_equipment %}
+                          <tr>
+                            <td>{{ equipment.name }}</td>
+                            <td>
+                              <div class="btn-group" role="group" aria-label="Task Actions">
+                                <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-primary" href="{{ url_for('equipment.view_equipment', id=equipment.id) }}">View</a>
+                                <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-secondary" href="{{ url_for('equipment.borrow_equipment', id=equipment.id) }}">Borrow</a>
+                              </div>
+                            </td>
+                          </tr>
+                          {% endfor %}
+                        {% else %}
+                          <tr>
+                          </tr>
+                        {% endif %}
+                      </tbody>
+                    </table>
+
+                    <table class="table table-hover">
+                      <thead>
+                        <tr>
+                          <th>Equipment in use (error)</th>
+                          <th>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% if in_use_equipment|length > 0 %}
+                          {% for equipment in in_use_equipment %}
+                          <tr>
+                            <td>{{ equipment.name }}</td>
+                            <td>
+                              <div class="btn-group" role="group" aria-label="Task Actions">
+                                <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-primary" href="{{ url_for('equipment.view_equipment', id=equipment.id) }}">View</a>
+                                <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-danger" href="{{ url_for('equipment.return_equipment', id=equipment.id) }}">Return</a>
+                              </div>
+                            </td>
+                          </tr>
+                          {% endfor %}
+                        {% else %}
+                          <tr>
+                          </tr>
+                        {% endif %}
+                      </tbody>
+                    </table>
+                    <table class="table table-hover">
+                      <thead>
+                        <tr>
+                          <th>Room Equipment (error)</th>
+                          <th>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% if all_equipment|length > 0 %}
+                          {% for equipment in all_equipment %}
+                          <tr>
+                            <td>{{ equipment.name }}</td>
+                            <td>
+                              <div class="btn-group" role="group" aria-label="Task Actions">
+                                <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-primary" href="{{ url_for('equipment.view_equipment', id=equipment.id) }}">View</a>
+                              </div>
+                            </td>
+                          </tr>
+                          {% endfor %}
+                        {% else %}
+                          <tr>
+                          </tr>
+                        {% endif %}
+                      </tbody>
+                    </table>
+
+      </div>
+    </div>
+  </div>
+{% endblock %}
