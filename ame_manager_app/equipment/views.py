@@ -4,7 +4,7 @@ from flask import Blueprint, flash, redirect, render_template, url_for
 from flask_login import current_user, login_required
 from ame_manager_app.equipment.forms import BorrowEquipmentForm
 
-from ame_manager_app.equipment.models import EquipmentModel, StorageModel, UsageModel, RoomModel
+from ame_manager_app.equipment.models import CalibrationModel, CommentModel, EquipmentModel, StorageModel, UsageModel, RoomModel, BriefingModel
 from ame_manager_app.user import ADMIN
 from ame_manager_app.user.models import Users
 
@@ -33,7 +33,7 @@ def my_page():
 def view_equipment(id):
     _equipment = EquipmentModel.query.filter_by(id=id).first()
     _resp_user = Users.query.filter(Users.id == _equipment.responsible_user_id).first()
-    return render_template('equipment/view_equipment.html',
+    return render_template('equipment/equipment_page.html',
                            equipment=_equipment,
                            resp_user = _resp_user,
                            )
@@ -63,15 +63,9 @@ def view_room(id):
 def view_storage(id):
     _storage = StorageModel.query.filter_by(id=id).first()
     _resp_user = Users.query.filter(Users.id == _storage.responsible_user_id).first()
-    _all_equipment_from_storage = EquipmentModel.query.filter(EquipmentModel.id == _storage.id).all()
-    _in_use_equipment_from_storage = EquipmentModel.query.filter(EquipmentModel.id == _storage.id, EquipmentModel.is_usable==False).all()
-    _usable_equipment_from_storage = EquipmentModel.query.filter(EquipmentModel.id == _storage.id, EquipmentModel.is_usable==True).all()
     return render_template('equipment/storage_page.html',
                            storage=_storage,
                            resp_user = _resp_user,
-                           usable_equipment = _usable_equipment_from_storage,
-                           in_use_equipment = _in_use_equipment_from_storage,
-                           all_equipment = _all_equipment_from_storage,
                            )
 
 @equipment.route('/borrow_equipment/<id>', methods=['GET', 'POST'])
@@ -117,3 +111,22 @@ def return_equipment(id):
     _equipment.return_equipment()
     flash(f'Equipment has been returned successfully.', 'success')
     return redirect(url_for("equipment.my_page"))
+
+@equipment.route('/add_comment', methods=['GET', 'POST'])
+def view_comment(id):
+    _comment = CommentModel.query.filter(id=id).first()
+    return render_template('equipment/add_comment.html',
+                           comment=_comment,
+                           )
+@equipment.route('/add_briefing', methods=['GET', 'POST'])
+def add_briefing(id):
+    _briefing = CalibrationModel.query.filter(id=id).first()
+    return render_template('equipment/add_briefing.html',
+                           briefing=_briefing,
+                           )                           
+@equipment.route('/add_calibration', methods=['GET', 'POST'])
+def add_calibration(id):
+    _calibration = CalibrationModel.query.filter(id=id).first()
+    return render_template('equipment/add_calibration.html',
+                           calibration=_calibration,
+                           )

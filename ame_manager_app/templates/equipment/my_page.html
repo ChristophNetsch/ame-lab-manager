@@ -8,11 +8,16 @@
   <div class="container">
     <div class="row mt-5">
       <div class="col-6 offset-3">
-        <th>Overview page for user: {{ user.name }}</th>
+        <th>Overview page for user: {{ user.name }} ({{ user.name_short }})</th>
+        <p></p>
+        <p>Current Usages:</p>
         <table class="table table-hover">
           <thead>
             <tr>
-              <th>Current Usages</th>
+              <th>Name</th>
+              <th>Eqipment</th>
+              <th>Start</th>
+              <th>Planned end</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -21,10 +26,15 @@
               {% for usage in usages %}
                 {% if usage.is_in_use == true %}
                   <tr>
-                    <td>{{ usage.name }} - with equipment_id: {{ usage.equipment_id}}</td>
+                    <td>{{ usage.name }}</td>
+                    <td>Id: {{ usage.equipment_id}}</td>
+                    <td>{{ usage.date_start}}</td>
+                    <td>{{ usage.date_planned_end}}</td>
                     <td>
                       <div class="btn-group" role="group" aria-label="Task Actions">
-                        <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-primary" href="{{ url_for('equipment.view_equipment', id=usage.equipment_id) }}">View Equipment</a>
+                        <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-primary" href="{{ url_for('equipment.view_equipment', id=usage.equipment_id) }}">View</a>
+                        <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-info" href="">Comment</a>
+                        <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-dark" href="">Calibrate</a>
                         <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-danger" href="{{ url_for('equipment.return_equipment', id=usage.equipment.id) }}">Return</a>
                       </div>
                     </td>
@@ -38,22 +48,29 @@
           </tbody>
         </table>
 
+        <p>Past Usages History:</p>
+        {% if usages|length > 0 %}
         <table class="table table-hover">
                       <thead>
                         <tr>
-                          <th>Past Usages History</th>
+                          <th>Name</th>
+                          <th>Equipment</th>
+                          <th>Start</th>
+                          <th>End</th>
                           <th>Actions</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {% if usages|length > 0 %}
                           {% for usage in usages %}
                             {% if usage.is_in_use == false %}
                               <tr>
-                                <td>{{ usage.name }} - with equipment_id: {{ usage.equipment_id}}</td>
+                                <td>{{ usage.name }}</td>
+                                <td>Id: {{ usage.equipment_id}}</td>
+                                <td>{{ usage.date_start}}</td>
+                                <td>{{ usage.date_end}}</td>
                                 <td>
                                   <div class="btn-group" role="group" aria-label="Task Actions">
-                                    <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-primary" href="{{ url_for('equipment.view_equipment', id=usage.equipment_id) }}">View Equipment</a>
+                                    <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-primary" href="{{ url_for('equipment.view_equipment', id=usage.equipment_id) }}">View</a>
                                     <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-secondary" href="{{ url_for('equipment.borrow_equipment', id=usage.equipment.id) }}">Borrow</a>
                                   </div>
                                 </td>
@@ -63,24 +80,30 @@
                         {% else %}
                           <tr>
                           </tr>
-                        {% endif %}
                       </tbody>
                     </table>
+                    {% endif %}
+
+                    <p></p>
+                    <p>My Equipment Responsibility:</p>
+                    {% if responsible_equipments|length > 0 %}
                     <table class="table table-hover">
                       <thead>
                         <tr>
-                          <th>My Equipment Responsibility</th>
+                          <th>Equipment</th>
                           <th>Actions</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {% if responsible_equipments|length > 0 %}
                           {% for equipment in responsible_equipments %}
                           <tr>
                             <td>{{ equipment.name }}</td>
                             <td>
                               <div class="btn-group" role="group" aria-label="Task Actions">
                                 <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-primary" href="{{ url_for('equipment.view_equipment', id=equipment.id) }}">View</a>
+                                <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-info" href="">Comment</a>
+                                <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-dark" href="">Calibrate</a>
+                                <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-warning" href="">Brief</a>
                                 <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-secondary" href="{{ url_for('equipment.borrow_equipment', id=equipment.id) }}">Borrow</a>
                                 <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-danger" href="{{ url_for('equipment.return_equipment', id=equipment.id) }}">Return</a>
                               </div>
@@ -90,19 +113,21 @@
                         {% else %}
                           <tr>
                           </tr>
-                        {% endif %}
                       </tbody>
                     </table>
+                    {% endif %}
 
+                    <p></p>
+                    <p>My Storage Responsibility:</p>
+                    {% if storages|length > 0 %}
                     <table class="table table-hover">
                       <thead>
                         <tr>
-                          <th>My Storage Responsibility</th>
+                          <th>Storage</th>
                           <th>Actions</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {% if storages|length > 0 %}
                           {% for storage in storages %}
                           <tr>
                             <td>{{ storage.name }}</td>
@@ -116,18 +141,21 @@
                         {% else %}
                           <tr>
                           </tr>
-                        {% endif %}
                       </tbody>
                     </table>
+                    {% endif %}
+
+                    <p></p>
+                    <p>My Room Responsibility:</p>
+                    {% if rooms|length > 0 %}
                     <table class="table table-hover">
                       <thead>
                         <tr>
-                          <th>My Room Responsibility</th>
+                          <th>Room</th>
                           <th>Actions</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {% if rooms|length > 0 %}
                           {% for room in rooms %}
                           <tr>
                             <td>{{ room.name }}</td>
@@ -141,10 +169,10 @@
                         {% else %}
                           <tr>
                           </tr>
-                        {% endif %}
                       </tbody>
                     </table>
-      </div>
+                    {% endif %}
+                  </div>
     </div>
   </div>
 {% endblock %}

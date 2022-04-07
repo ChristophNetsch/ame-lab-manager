@@ -82,7 +82,7 @@ def inittestdb():
         name="box 1",
         room=_room,
         info_text="impossible to find",
-        responsible_user=user,
+        responsible_user=admin,
     )
 
     _storage2 = StorageModel(

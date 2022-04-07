@@ -132,7 +132,7 @@ class CommentModel(db.Model):
         return str(_str)
 
     def __repr__(self):
-        return f"{self.text} (id #{self.id}, date:{self.date}))"
+        return f"{self.text} (id #{self.id}, user:{self.user.name}, date:{self.date}))"
 
 class CalibrationModel(db.Model):
 
@@ -150,7 +150,7 @@ class CalibrationModel(db.Model):
         return str(_str)
 
     def __repr__(self):
-        return f"{self.text} (id #{self.id}, date:{self.date}))"
+        return f"{self.text} (id #{self.id}, user:{self.user.name}, date:{self.date}))"
 
 class BriefingModel(db.Model):
 
@@ -169,7 +169,7 @@ class BriefingModel(db.Model):
         return str(_str)
 
     def __repr__(self):
-        return f"{self.text} (id #{self.id}, date:{self.date}))"
+        return f"{self.text} (id #{self.id}, user:{self.user.name}, date:{self.date}))"
 
 class UsageModel(db.Model):
 
