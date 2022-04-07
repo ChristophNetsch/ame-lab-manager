@@ -22,12 +22,12 @@
                 <small class="text-muted">Is calibration nessessary: {{ equipment.is_calibration_nessessary }}</small>
                 <small class="text-muted">Is briefing nessessary: {{ equipment.is_briefing_nessessary }}</small>
               </div>
-              <p></p>
+              <hr>
 
               <table class="table table-hover">
                 <thead>
                   <tr>
-                    <th>Actions</th>
+                    <th>User Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -45,25 +45,28 @@
                 </tbody>
               </table>
 
-              <p></p>
+              <hr>
               <p>Calibrations: </p>
                 {% if equipment.calibrations|length > 0 %}
                   {% for calibration in equipment.calibrations %}
                     <p>{{ calibration }}</p>
                   {% endfor %}
                 {% endif %}
+              <hr>
               <p>Comments: </p>
                 {% if equipment.calibrations|length > 0 %}
                   {% for comment in equipment.comments %}
                     <p>{{ comment }}</p>
                   {% endfor %}
                 {% endif %}
+              <hr>
               <p>Briefings: </p>
                 {% if equipment.briefings|length > 0 %}
                   {% for briefing in equipment.briefings %}
                     <p>{{ briefing }}</p>
                   {% endfor %}
                 {% endif %}
+          <hr>
           <p>Usages: </p>
           {% if equipment.usages|length > 0 %}
             {% for usage in equipment.usages %}

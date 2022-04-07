@@ -75,24 +75,23 @@ def borrow_equipment(id):
     
     if _equipment is None:
         flash(f'Equipment with id {id} does not exist!', 'danger')
-        return redirect(url_for("equipment.my_page"))
+        return redirect("/equipment/my_page")
     
     if _equipment.is_in_use():
         flash(f'Equipment with id {id} is currently in use by {_equipment.get_current_active_usage().user}!', 'danger')
-        return redirect(url_for("equipment.my_page"))
+        return redirect("/equipment/my_page")
     
     _form = BorrowEquipmentForm()
 
     if _form.validate_on_submit():
-        _usage_location = StorageModel.query.filter_by(id=_form.storage_id).first()
         _equipment.borrow_equipment(user=current_user,
-                                    usage_location=_usage_location,
+                                    usage_location= _form.usage_location_id,
                                     name=_form.name,
                                     usage_duration_days=_form.usage_duration_days,
                                     )
     
-    flash(f'Equipment has been borrowed successfully.', 'success')
-    return render_template('equipment/my_page.html', form=_form, _equipment=_equipment)
+    flash(f'You can borrow this equipment. Please add some spicy infos.', 'secondary')
+    return render_template('equipment/borrow_equipment.html', form=_form, equipment=_equipment)
 
 
 @equipment.route('/return_equipment/<id>', methods=['GET', 'POST'])

@@ -9,7 +9,7 @@ from ame_manager_app.config import DefaultConfig
 class BorrowEquipmentForm(FlaskForm):
     name = TextAreaField("Usage Name", [InputRequired(), Length(5, 2048)])
     usage_duration_days = IntegerField("Usage Duration (days)", [InputRequired(), NumberRange(min=1, max=DefaultConfig.MAX_DAYS_BORROW)])
-    storage_id = IntegerField() # implement cleanly via drop-downs for room and storage_location
+    usage_location_id = IntegerField("Usage Duration (days)", [InputRequired()])
     submit = SubmitField("Borrow")
 
 

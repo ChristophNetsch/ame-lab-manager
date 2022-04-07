@@ -13,8 +13,9 @@
       
       <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownPages" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{current_user.name}}</a>
         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownPages">
-          {% if current_user.is_admin() %}
           <a class="dropdown-item" href="/equipment/my_page">My Overview Page</a>
+          <hr>
+          {% if current_user.is_admin() %}
           <a class="dropdown-item" href="/admin/">Admin Dashboard</a>
           <hr>
           {% endif %}

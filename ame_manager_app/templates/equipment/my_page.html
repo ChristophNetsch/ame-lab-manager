@@ -9,7 +9,7 @@
     <div class="row mt-5">
       <div class="col-6 offset-3">
         <th>Overview page for user: {{ user.name }} ({{ user.name_short }})</th>
-        <p></p>
+        <hr>
         <p>Current Usages:</p>
         <table class="table table-hover">
           <thead>
@@ -18,7 +18,7 @@
               <th>Eqipment</th>
               <th>Start</th>
               <th>Planned end</th>
-              <th>Actions</th>
+              <th>User actions</th>
             </tr>
           </thead>
           <tbody>
@@ -41,13 +41,11 @@
                   </tr>
                 {% endif %}
               {% endfor %}
-            {% else %}
-              <tr>
-              </tr>
             {% endif %}
           </tbody>
         </table>
 
+        <hr>
         <p>Past Usages History:</p>
         {% if usages|length > 0 %}
         <table class="table table-hover">
@@ -77,14 +75,11 @@
                               </tr>
                             {% endif %}
                           {% endfor %}
-                        {% else %}
-                          <tr>
-                          </tr>
                       </tbody>
                     </table>
                     {% endif %}
 
-                    <p></p>
+                    <hr>
                     <p>My Equipment Responsibility:</p>
                     {% if responsible_equipments|length > 0 %}
                     <table class="table table-hover">
@@ -110,14 +105,11 @@
                             </td>
                           </tr>
                           {% endfor %}
-                        {% else %}
-                          <tr>
-                          </tr>
                       </tbody>
                     </table>
                     {% endif %}
 
-                    <p></p>
+                    <hr>
                     <p>My Storage Responsibility:</p>
                     {% if storages|length > 0 %}
                     <table class="table table-hover">
@@ -138,14 +130,11 @@
                             </td>
                           </tr>
                           {% endfor %}
-                        {% else %}
-                          <tr>
-                          </tr>
                       </tbody>
                     </table>
                     {% endif %}
 
-                    <p></p>
+                    <hr>
                     <p>My Room Responsibility:</p>
                     {% if rooms|length > 0 %}
                     <table class="table table-hover">
@@ -166,9 +155,6 @@
                             </td>
                           </tr>
                           {% endfor %}
-                        {% else %}
-                          <tr>
-                          </tr>
                       </tbody>
                     </table>
                     {% endif %}
