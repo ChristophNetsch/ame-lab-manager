@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
+from datetime import datetime
+
+import random
 
 from flask_admin.contrib import sqla
 from flask_login import current_user
@@ -8,7 +11,29 @@ from sqlalchemy import Column
 from ame_manager_app.user.models import Users
 
 from ..extensions import db
-from ..utils import get_current_time, get_current_time_with_offset_days
+from ..utils import get_current_time, add_offset_days_on_datetime
+
+class UsageModel(db.Model):
+
+    __tablename__ = "usage"
+
+    id = Column(db.Integer, primary_key=True)
+    name = Column(db.String(2048))
+    date_start = Column(db.DateTime, default=get_current_time)
+    date_planned_end = Column(db.DateTime)
+    date_end = Column(db.DateTime)
+    usage_location_id = Column(db.Integer, db.ForeignKey("storage_location.id")) 
+    equipment_id = Column(db.Integer, db.ForeignKey("equipment.id"))
+    user_id = Column(db.Integer, db.ForeignKey("user.id"))
+    #reference_url = Column(db.String(2048)) # Wiki
+    is_in_use = Column(db.Boolean)
+
+    def __unicode__(self):
+        _str = "ID: %s, Post: %s" % (self.id, self.task)
+        return str(_str)
+
+    def __repr__(self):
+        return f"{self.name} (equipment:{self.equipment.name}, user:{self.user.name}, date_start:{self.date_start})"
 
 
 class EquipmentModel(db.Model):
@@ -16,7 +41,8 @@ class EquipmentModel(db.Model):
     __tablename__ = "equipment"
 
     id = Column(db.Integer, primary_key=True)
-    id_lab= Column(db.Integer)
+    id_lab_CVE= Column(db.Integer)
+    id_lab_UKA= Column(db.Integer)
     name = Column(db.String(2048))
     responsible_user_id = Column(db.Integer, db.ForeignKey("user.id"))
     info_text = Column(db.Text)
@@ -31,7 +57,7 @@ class EquipmentModel(db.Model):
         backref=db.backref("equipment", lazy="joined"),
         lazy="select",
     )
-    ##comment??why?
+
     comments = db.relationship(  
         "CommentModel",     
         backref=db.backref("equipment", lazy="joined"),
@@ -91,21 +117,21 @@ class EquipmentModel(db.Model):
             )
 
     def borrow_equipment(
-        self,
-        user: Users,
-        usage_location: "StorageModel",
+        borrowing_user_id: int =1,
+        usage_location_id: int =1,
         name: str = "",
         usage_duration_days: int = 90,
-    ):
+        ):
+        self=quip
         if not self.is_in_use():
             _usage = UsageModel(
+                user_id=borrowing_user_id,
                 name=name,
-                date_start=get_current_time(),
-                date_planned_end=get_current_time_with_offset_days(usage_duration_days),
-                usage_location=usage_location,
-                equipment=self,
+                date_start = get_current_time(),
+                date_planned_end=add_offset_days_on_datetime(get_current_time(), usage_duration_days),
+                usage_location_id = usage_location_id,
+                equipment_id=self,
                 is_in_use=True,
-                user=user,
             )
             db.session.add(_usage)
             db.session.commit()
@@ -171,29 +197,6 @@ class BriefingModel(db.Model):
     def __repr__(self):
         return f"{self.text} (id #{self.id}, user:{self.user.name}, date:{self.date}))"
 
-class UsageModel(db.Model):
-
-    __tablename__ = "usage"
-
-    id = Column(db.Integer, primary_key=True)
-    name = Column(db.String(2048))
-    date_start = Column(db.DateTime, default=get_current_time)
-    date_planned_end = Column(db.DateTime)
-    date_end = Column(db.DateTime)
-    usage_location_id = Column(db.Integer, db.ForeignKey("storage_location.id")) 
-    equipment_id = Column(db.Integer, db.ForeignKey("equipment.id"))
-    user_id = Column(db.Integer, db.ForeignKey("user.id"))
-    reference_url = Column(db.String(2048)) # Wiki
-    is_in_use = Column(db.Boolean)
-
-    def __unicode__(self):
-        _str = "ID: %s, Post: %s" % (self.id, self.task)
-        return str(_str)
-
-    def __repr__(self):
-        return f"{self.name} (equipment:{self.equipment.name}, user:{self.user.name}, date_start:{self.date_start})"
-
-
 class StorageModel(db.Model):
 
     __tablename__ = "storage_location"
@@ -222,7 +225,7 @@ class StorageModel(db.Model):
         return str(_str)
     
     def __repr__(self):
-        return f"{self.room.name} {self.name}"
+        return f"{self.name} - {self.room.name}"
 
 class RoomModel(db.Model):
 

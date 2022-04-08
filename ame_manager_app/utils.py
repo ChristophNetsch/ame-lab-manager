@@ -28,6 +28,8 @@ STRING_LEN = 64
 def get_current_time() -> datetime.datetime:
     return datetime.datetime.utcnow()
 
+def add_offset_days_on_datetime(dt: datetime.datetime, num_days: int) -> datetime.datetime:
+    return dt + datetime.timedelta(days=num_days)
 
 def get_current_time_with_offset_days(num_days: int) -> datetime.datetime:
     return datetime.datetime.utcnow() + datetime.timedelta(days=num_days)

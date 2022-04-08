@@ -7,6 +7,7 @@ from ame_manager_app.equipment.forms import BorrowEquipmentForm
 from ame_manager_app.equipment.models import CalibrationModel, CommentModel, EquipmentModel, StorageModel, UsageModel, RoomModel, BriefingModel
 from ame_manager_app.user import ADMIN
 from ame_manager_app.user.models import Users
+import datetime
 
 from ..extensions import db
 
@@ -80,16 +81,36 @@ def borrow_equipment(id):
     if _equipment.is_in_use():
         flash(f'Equipment with id {id} is currently in use by {_equipment.get_current_active_usage().user}!', 'danger')
         return redirect("/equipment/my_page")
-    
+    storages = StorageModel.query.filter_by(room_id=1).all()
+    equipments = EquipmentModel.query.filter_by().all()
+    users = Users.query.all()
+    storages_names = [(storage.name) for storage in storages]
     _form = BorrowEquipmentForm()
+    _form.usage_location_id.choices = [(storage.id, storage.name) for storage in storages]
+    _form.alt2_usage_duration_days.default = 1
+    _form.name.default = "experiment name"
+    _form.name.default = "experiment name"
+    _form.user.choices = [(user.id, user.name) for user in users]
+    _form.borrowing_equipment.choices = [(equipment.id, equipment.name) for equipment in equipments]
+    _form.borrowing_equipment.default = _equipment.id #(_equipment.id, _equipment.name)
 
     if _form.validate_on_submit():
-        _equipment.borrow_equipment(user=current_user,
-                                    usage_location= _form.usage_location_id,
-                                    name=_form.name,
-                                    usage_duration_days=_form.usage_duration_days,
-                                    )
-    
+        _equipment=EquipmentModel.query.filter_by(id=_form.borrowing_equipment.data).first()
+        _user=Users.query.filter_by(id=_form.user.data).first()
+        _usage_location=StorageModel.query.filter_by(id=_form.usage_location_id.data).first()
+        print("++++equi++++")
+        print(_equipment.name)
+        print("++++user++++")
+        print(_user.name)
+        print(_user.id)
+        print("++++uslocater++++")
+        print(_usage_location.id)
+        _equipment.borrow_equipment(
+            borrowing_user_id=current_user.id,
+            usage_location_id = _usage_location.id,
+            name=_form.name.data,
+            usage_duration_days= _form.alt2_usage_duration_days.data,
+            )
     flash(f'You can borrow this equipment. Please add some spicy infos.', 'secondary')
     return render_template('equipment/borrow_equipment.html', form=_form, equipment=_equipment)
 
