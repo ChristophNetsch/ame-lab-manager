@@ -8,7 +8,11 @@
   <div class="container">
     <div class="row mt-5">
       <div class="col-6 offset-3">
+        <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-dark" href="/equipment/my_page">Go to my overview page</a>
+        <hr>
         <p>Welcome to the Lab Manager dashboard</p>
+        {{ render_form(url_for('frontend.dashboard'), form_filter)}}
+        {{ render_form(url_for('frontend.dashboard'), form_search)}}
       </div>
     </div>
   </div>

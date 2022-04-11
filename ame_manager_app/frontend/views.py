@@ -9,12 +9,13 @@ from flask_login import (current_user, login_fresh, login_required, login_user,
 from itsdangerous import URLSafeSerializer
 
 from ..emails import send_async_email
-from ..equipment import SearchEquipmentForm
+from ..equipment import FilterEquipmentForm, SearchEquipmentForm
 from ..extensions import db, login_manager
 from ..user import ACTIVE, Users
 from .forms import (ChangePasswordForm, ContactUsForm, LoginForm,
                     RecoverPasswordForm, SignupForm)
 from .models import ContactUs
+from ame_manager_app.equipment.models import EquipmentModel, StorageModel, RoomModel
 
 frontend = Blueprint("frontend", __name__)
 
@@ -22,11 +23,36 @@ frontend = Blueprint("frontend", __name__)
 @frontend.route("/dashboard")
 @login_required
 def dashboard():
+    equipments = EquipmentModel.query.all()
+    rooms = RoomModel.query.all()
+    storages = StorageModel.query.all()
 
-    _task_form = SearchEquipmentForm()
+    _form_search = SearchEquipmentForm()
+    _form_search.equipment_id.choices = [(equipment.id, equipment.name) for equipment in equipments]
+
+    _form_filter = FilterEquipmentForm()
+    _form_filter.room.choices = [(room.id, room.name) for room in rooms]
+    _form_filter.storage_location.choices = [(storage.id, storage.name) for storage in storages]
+    _form_filter.usage_location.choices = [(storage.id, storage.name) for storage in storages]
+    _form_filter.filter_mode.choices = ["Room ", "Storage location ", "Usage location "]
+    if _form_filter.validate_on_submit():
+        mode = _form_filter.filter_mode.data
+        if mode== "Room ":
+            _room = RoomModel.query.filter_by(id=_form_filter.room.data).first() 
+            _storage_locations = _room.query.storage_locations.all()
+            equipments = EquipmentModel.query.filter(EquipmentModel.storage_location_id in _storage_locations).all()
+            _form_search.equipment_id.choices = [(equipment.id, equipment.name) for equipment in equipments]
+        if mode== "Storage location ":
+            _storage_location =StorageModel.query.filter_by(id=_form_filter.storage_location.data).first() 
+            equipments = EquipmentModel.query.filter(EquipmentModel.storage_location_id in _storage_locations).all()
+            _form_search.equipment_id.choices = [(equipment.id, equipment.name) for equipment in equipments]
+        if mode== "Usage location ":
+            _storage_location =StorageModel.query.filter_by(id=_form_filter.storage_location.data).first() 
+            equipments = EquipmentModel.query.filter(EquipmentModel.storage_location_id in _storage_locations).all()
+            _form_search.equipment_id.choices = [(equipment.id, equipment.name) for equipment in equipments]
 
     return render_template(
-        "dashboard/dashboard.html", task_form=_task_form, _active_dash=True
+        "dashboard/dashboard.html", form_filter=_form_filter, form_search = _form_search, _active_dash=True
     )
 
 

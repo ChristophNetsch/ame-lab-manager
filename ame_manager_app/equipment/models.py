@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 
 import random
+from flask import flash, redirect, url_for
 
 from flask_admin.contrib import sqla
 from flask_login import current_user
@@ -111,35 +112,78 @@ class EquipmentModel(db.Model):
             current_active_usage.is_in_use = False
             current_active_usage.date_end = get_current_time()
             db.session.commit()
+            
         else:
             raise Exception(
                 f"Equipment {self} cannot be returned, since it has not been borrowed."
             )
-
-    def borrow_equipment(
-        borrowing_user_id: int =1,
-        usage_location_id: int =1,
-        name: str = "",
-        usage_duration_days: int = 90,
-        ):
-        self=quip
+            
+    def borrow_equipment(self,name,usage_start,usage_planned_end,borrowing_user_id,usage_location_id):
         if not self.is_in_use():
             _usage = UsageModel(
                 user_id=borrowing_user_id,
                 name=name,
-                date_start = get_current_time(),
-                date_planned_end=add_offset_days_on_datetime(get_current_time(), usage_duration_days),
+                date_start = usage_start,
+                #date_planned_end=add_offset_days_on_datetime(get_current_time(), usage_duration_days),
+                date_planned_end=usage_planned_end,
                 usage_location_id = usage_location_id,
-                equipment_id=self,
+                equipment_id=self.id,
                 is_in_use=True,
             )
             db.session.add(_usage)
             db.session.commit()
+            flash(f'Borrowing Equipment successfull.', 'success')
+            
         else:
             raise Exception(
                 f"Equipment {self} cannot be borrowed, already in use with usage {self.get_current_active_usage()}."
             )
+    def add_briefing(self,date,text,user_id,date_until,briefer_id):
+        if date_until is None:
+            _briefing = BriefingModel(
+                user_id=user_id,
+                briefer_id=briefer_id,
+                date = date,
+                equipment_id=self.id,
+                text = text,
+            )
+        else:
+            _briefing = BriefingModel(
+                user_id=user_id,
+                briefer_id=briefer_id,
+                date = date,
+                equipment_id=self.id,
+                text = text,
+                date_until=date_until,
+                )
+        db.session.add(_briefing)
+        db.session.commit()
+        flash(f'Briefing submission successfull.', 'success')
 
+    def add_comment(self,date,text,user_id, is_comment_for_responsible_admin, is_comment_for_users):
+        _comment = CommentModel(
+            user_id=user_id,
+            date = date,
+            equipment_id=self.id,
+            text = text,
+            is_comment_for_responsible_admin = is_comment_for_responsible_admin,
+            is_comment_for_users = is_comment_for_users,
+        )
+        db.session.add(_comment)
+        db.session.commit()
+        flash(f'Comment submission successfull.', 'success')
+        
+    def add_calibration(self,date,text,user_id,date_until):
+        _comment = CalibrationModel(
+            user_id=user_id,
+            date = date,
+            equipment_id=self.id,
+            text = text,
+            date_until = date_until,
+        )
+        db.session.add(_comment)
+        db.session.commit()
+        flash(f'Calibration submission successfull.', 'success')
 
 class CommentModel(db.Model):
 
@@ -195,7 +239,7 @@ class BriefingModel(db.Model):
         return str(_str)
 
     def __repr__(self):
-        return f"{self.text} (id #{self.id}, user:{self.user.name}, date:{self.date}))"
+        return f"user:{self.user_id}, id #{self.equipment_id}, date:{self.date}"
 
 class StorageModel(db.Model):
 

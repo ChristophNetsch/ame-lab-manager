@@ -33,8 +33,8 @@
                     <td>
                       <div class="btn-group" role="group" aria-label="Task Actions">
                         <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-primary" href="{{ url_for('equipment.view_equipment', id=usage.equipment_id) }}">View</a>
-                        <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-info" href="">Comment</a>
-                        <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-dark" href="">Calibrate</a>
+                        <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-info" href="{{ url_for('equipment.add_comment', id=usage.equipment.id) }}">Comment</a>
+                        <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-info" href="{{ url_for('equipment.add_calibration', id=usage.equipment.id) }}">Calibrate</a>
                         <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-danger" href="{{ url_for('equipment.return_equipment', id=usage.equipment.id) }}">Return</a>
                       </div>
                     </td>
@@ -69,7 +69,7 @@
                                 <td>
                                   <div class="btn-group" role="group" aria-label="Task Actions">
                                     <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-primary" href="{{ url_for('equipment.view_equipment', id=usage.equipment_id) }}">View</a>
-                                    <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-secondary" href="{{ url_for('equipment.borrow_equipment', id=usage.equipment.id) }}">Borrow</a>
+                                    <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-info" href="{{ url_for('equipment.add_comment', id=usage.equipment.id) }}">Comment</a>
                                   </div>
                                 </td>
                               </tr>
@@ -96,9 +96,9 @@
                             <td>
                               <div class="btn-group" role="group" aria-label="Task Actions">
                                 <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-primary" href="{{ url_for('equipment.view_equipment', id=equipment.id) }}">View</a>
-                                <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-info" href="">Comment</a>
-                                <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-dark" href="">Calibrate</a>
-                                <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-warning" href="">Brief</a>
+                                <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-info" href="{{ url_for('equipment.add_comment', id=equipment.id) }}">Comment</a>
+                                <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-info" href="{{ url_for('equipment.add_calibration', id=equipment.id) }}">Calibrate</a>
+                                <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-warning" href="{{ url_for('equipment.add_briefing', id=equipment.id) }}">Brief</a>
                                 <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-secondary" href="{{ url_for('equipment.borrow_equipment', id=equipment.id) }}">Borrow</a>
                                 <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-danger" href="{{ url_for('equipment.return_equipment', id=equipment.id) }}">Return</a>
                               </div>
