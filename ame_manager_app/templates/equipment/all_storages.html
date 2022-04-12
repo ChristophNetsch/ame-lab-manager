@@ -1,0 +1,46 @@
+{% from "macros/_form.html" import render_form %}
+
+{% set page_title = 'All Storages' %}
+
+{% extends 'layouts/base.html' %}
+
+
+{% block body %}
+  <div class="container">
+    <div class="row mt-5">
+      <div class="col-6 offset-3">
+        <h5>Storages:</h5>
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>Storage name </th>
+              <th>Room</th>
+              <th>Responsible user</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% if storages|length > 0 %}
+              {% for storage in storages %}
+              <tr>
+                <td>{{ storage.name }}</td>
+                <td>{{ storage.room.name }}</td>
+                <td>{{ storage.get_resp_user().name }}</td>
+                <td></td>
+                <td>
+                  <div class="btn-group" role="group" aria-label="Task Actions">
+                    <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-primary" href="{{ url_for('equipment.view_storage', id=storage.id) }}">View</a>
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+            {% else %}
+              <tr>
+              </tr>
+            {% endif %}
+          </tbody>
+        </table>
+    </div>
+  </div>
+
+{% endblock %}

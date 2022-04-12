@@ -10,18 +10,13 @@
     <div class="col-6 offset-3">
       <div class="card mb-6 box-shadow">
           <div class="card-body">
-            <p class="card-text">Storage: {{ storage.name }}</p>
+            <h3 class="card-text">Storage: {{ storage.name }}</h3>
             <p></p>
             <p class="text-muted">Reference URL: {{ storage.reference_url }}</p>
             <p class="text-muted">Info text: {{ storage.info_text }}</p>
             <p class="text-muted">Room location ID: {{ storage.room_id }}</p>
             <p class="text-muted">Responsible admin: {{ resp_user.name }} ({{ resp_user.email }})</p>
             </div>
-            <p></p>
-            <p>Stored Equipment: </p>
-            <p>{{ storage.stored_equipment }}</p>
-            <p>Usages: </p>
-            <p>{{ storage.usages }}</p>
           </div>
       </div>
     </div>
@@ -31,11 +26,11 @@
   <div class="container">
     <div class="row mt-5">
       <div class="col-6 offset-3">
-
+        <h5>Storage Equipment:</h5>
                     <table class="table table-hover">
                       <thead>
                         <tr>
-                          <th>Storage Equipment </th>
+                          <th>Equipment name </th>
                           <th>Actions</th>
                         </tr>
                       </thead>
@@ -58,11 +53,11 @@
                       </tbody>
                     </table>
 
-                    
+                    <h5>Usages in Storage:</h5>
                     <table class="table table-hover">
                       <thead>
                         <tr>
-                          <th>Usages in Storage </th>
+                          <th>Not pretty usage description</th>
                           <th>Actions</th>
                         </tr>
                       </thead>

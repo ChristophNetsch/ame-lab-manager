@@ -3,13 +3,29 @@
 from random import choices
 from flask_login import current_user
 from flask_wtf import FlaskForm
-from wtforms import SubmitField, SelectField, RadioField, StringField, IntegerField, DateField, DateTimeLocalField, DateTimeField, SelectField
+from wtforms import BooleanField,SubmitField, SelectField, RadioField, StringField, IntegerField, DateField, DateTimeLocalField, DateTimeField, SelectField
 from wtforms.validators import DataRequired,InputRequired, Length, NumberRange,Optional
 from ..utils import get_current_time
 from ame_manager_app.equipment.models import EquipmentModel
 
 from ame_manager_app.config import DefaultConfig
 
+class RegisterEquipmentForm(FlaskForm):
+    name = StringField("Equipment name", validators=[DataRequired(), Length(5, 2048)])
+    info_text = StringField("Info text", validators=[Optional()])
+    reference_url = StringField("Reference URL", validators=[Optional()])
+
+    responsible_user = SelectField(validators=[DataRequired()])
+    usage_location_id = SelectField(validators=[DataRequired()])
+
+    is_usable = BooleanField(" Is usable", validators=[Optional()])
+    is_calibration_nessessary = BooleanField(" Calibration for use is necessary", validators=[Optional()])
+    is_briefing_nessessary = BooleanField(" Briefing for user is necessary", validators=[Optional()])
+
+    id_lab_CVE = StringField("ID CVE", validators=[Optional()])
+    id_lab_UKA = StringField("ID UKA", validators=[Optional()])
+    submit = SubmitField("Register")
+    
 class BorrowEquipmentForm(FlaskForm):
     borrowing_equipment = SelectField(validators=[DataRequired()])
     user = SelectField(validators=[DataRequired()])

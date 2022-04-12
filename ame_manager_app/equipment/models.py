@@ -8,6 +8,7 @@ from flask import flash, redirect, url_for
 from flask_admin.contrib import sqla
 from flask_login import current_user
 from sqlalchemy import Column
+from ame_manager_app import user
 
 from ame_manager_app.user.models import Users
 
@@ -34,7 +35,7 @@ class UsageModel(db.Model):
         return str(_str)
 
     def __repr__(self):
-        return f"{self.name} (equipment:{self.equipment.name}, user:{self.user.name}, date_start:{self.date_start})"
+        return f"{self.name} (equipment:{self.equipment_id}, user:{self.user_id}, date_start:{self.date_start})"
 
 
 class EquipmentModel(db.Model):
@@ -52,6 +53,7 @@ class EquipmentModel(db.Model):
     is_usable = Column(db.Boolean)
     is_calibration_nessessary = Column(db.Boolean)
     is_briefing_nessessary = Column(db.Boolean)
+    datetime_register = Column(db.DateTime, default=get_current_time)
 
     calibrations = db.relationship(
         "CalibrationModel",
@@ -69,7 +71,6 @@ class EquipmentModel(db.Model):
         backref=db.backref("equipment", lazy="joined"),
         lazy="select",
     )
-    # Einweisungen
     briefings = db.relationship(
         "BriefingModel",
         backref=db.backref("equipment", lazy="joined"),
@@ -105,6 +106,20 @@ class EquipmentModel(db.Model):
         else:
             return None
 
+    def get_resp_user(self) -> Users:
+        user = Users.query.filter_by(id=self.responsible_user_id).first()
+        return user
+    
+    def get_storage_location(self) -> StorageModel:
+        storage = StorageModel.query.filter_by(id=self.storage_location_id).first()
+        return storage
+
+    def get_latest_location(self) -> StorageModel:
+        storage = StorageModel.query.filter_by(id=self.storage_location_id).first()
+        if self.is_in_use() ==True:
+            storage = StorageModel.query.filter_by(id=self.get_current_active_usage().usage_location_id).first()
+        return storage
+
     def return_equipment(self):
         current_active_usage = self.get_current_active_usage()
         print(current_active_usage)
@@ -112,45 +127,44 @@ class EquipmentModel(db.Model):
             current_active_usage.is_in_use = False
             current_active_usage.date_end = get_current_time()
             db.session.commit()
-            
         else:
             raise Exception(
                 f"Equipment {self} cannot be returned, since it has not been borrowed."
             )
             
-    def borrow_equipment(self,name,usage_start,usage_planned_end,borrowing_user_id,usage_location_id):
+    def borrow_equipment(self,name,usage_start,usage_planned_end,borrowing_user,usage_location):
         if not self.is_in_use():
             _usage = UsageModel(
-                user_id=borrowing_user_id,
+                user_id=borrowing_user.id,
                 name=name,
                 date_start = usage_start,
                 #date_planned_end=add_offset_days_on_datetime(get_current_time(), usage_duration_days),
                 date_planned_end=usage_planned_end,
-                usage_location_id = usage_location_id,
+                usage_location_id = usage_location.id,
                 equipment_id=self.id,
                 is_in_use=True,
             )
             db.session.add(_usage)
             db.session.commit()
-            flash(f'Borrowing Equipment successfull.', 'success')
+            #flash(f'Borrowing Equipment successfull.', 'success')
             
         else:
             raise Exception(
                 f"Equipment {self} cannot be borrowed, already in use with usage {self.get_current_active_usage()}."
             )
-    def add_briefing(self,date,text,user_id,date_until,briefer_id):
+    def add_briefing(self,date,text,user,date_until,briefer):
         if date_until is None:
             _briefing = BriefingModel(
-                user_id=user_id,
-                briefer_id=briefer_id,
+                user_id=user.id,
+                briefer_id=briefer.id,
                 date = date,
                 equipment_id=self.id,
                 text = text,
             )
         else:
             _briefing = BriefingModel(
-                user_id=user_id,
-                briefer_id=briefer_id,
+                user_id=user.id,
+                briefer_id=briefer.id,
                 date = date,
                 equipment_id=self.id,
                 text = text,
@@ -158,11 +172,11 @@ class EquipmentModel(db.Model):
                 )
         db.session.add(_briefing)
         db.session.commit()
-        flash(f'Briefing submission successfull.', 'success')
+        #flash(f'Briefing submission successfull.', 'success')
 
-    def add_comment(self,date,text,user_id, is_comment_for_responsible_admin, is_comment_for_users):
+    def add_comment(self,date,text,user, is_comment_for_responsible_admin, is_comment_for_users):
         _comment = CommentModel(
-            user_id=user_id,
+            user_id=user.id,
             date = date,
             equipment_id=self.id,
             text = text,
@@ -171,11 +185,11 @@ class EquipmentModel(db.Model):
         )
         db.session.add(_comment)
         db.session.commit()
-        flash(f'Comment submission successfull.', 'success')
+        #flash(f'Comment submission successfull.', 'success')
         
-    def add_calibration(self,date,text,user_id,date_until):
+    def add_calibration(self,date,text,user,date_until):
         _comment = CalibrationModel(
-            user_id=user_id,
+            user_id=user.id,
             date = date,
             equipment_id=self.id,
             text = text,
@@ -183,8 +197,37 @@ class EquipmentModel(db.Model):
         )
         db.session.add(_comment)
         db.session.commit()
-        flash(f'Calibration submission successfull.', 'success')
-
+        #flash(f'Calibration submission successfull.', 'success')
+        
+def register_new_equipment(
+    storage_location,
+    responsible_user,
+    name:str="",
+    info_text:str="",
+    reference_url:str="",
+    id_lab_UKA:str="",
+    id_lab_CVE:str="",
+    is_usable:bool=False,
+    is_calibration_nessessary:bool=False,
+    is_briefing_nessessary:bool=False,
+    ):
+    _equipment = EquipmentModel(
+        responsible_user_id=responsible_user.id,
+        name=name,
+        info_text=info_text,
+        reference_url=reference_url,
+        storage_location_id=storage_location.id,
+        id_lab_UKA=id_lab_UKA,
+        id_lab_CVE=id_lab_CVE,
+        is_usable=is_usable,
+        is_calibration_nessessary=is_calibration_nessessary,
+        is_briefing_nessessary=is_briefing_nessessary,
+        datetime_register=get_current_time(),
+    )
+    db.session.add(_equipment)
+    db.session.commit()
+    #flash(f'Registering Equipment successfull.', 'success')
+    
 class CommentModel(db.Model):
 
     __tablename__ = "comment"
@@ -202,7 +245,7 @@ class CommentModel(db.Model):
         return str(_str)
 
     def __repr__(self):
-        return f"{self.text} (id #{self.id}, user:{self.user.name}, date:{self.date}))"
+        return f"{self.text} (id #{self.id}, user:{self.user_id}, date:{self.date}))"
 
 class CalibrationModel(db.Model):
 
@@ -220,7 +263,7 @@ class CalibrationModel(db.Model):
         return str(_str)
 
     def __repr__(self):
-        return f"{self.text} (id #{self.id}, user:{self.user.name}, date:{self.date}))"
+        return f"{self.text} (equipment:{self.equipment_id}, user:{self.user_id}, date:{self.date}))"
 
 class BriefingModel(db.Model):
 
@@ -229,6 +272,10 @@ class BriefingModel(db.Model):
     id = Column(db.Integer, primary_key=True)
     user_id = Column(db.Integer, db.ForeignKey("user.id"))
     briefer_id= Column(db.Integer, db.ForeignKey("user.id"))
+    
+    user = db.relationship("Users", foreign_keys=[user_id])
+    briefer = db.relationship("Users", foreign_keys=[briefer_id])
+    
     date = Column(db.DateTime, default=get_current_time)
     equipment_id = Column(db.Integer, db.ForeignKey("equipment.id"))
     text = Column(db.Text)
@@ -240,6 +287,14 @@ class BriefingModel(db.Model):
 
     def __repr__(self):
         return f"user:{self.user_id}, id #{self.equipment_id}, date:{self.date}"
+    
+    def get_user(self) -> Users:
+        user = Users.query.filter_by(id=self.user_id).first()
+        return user
+    
+    def get_briefer(self) -> Users:
+        briefer = Users.query.filter_by(id=self.briefer_id).first()
+        return briefer
 
 class StorageModel(db.Model):
 
@@ -269,7 +324,11 @@ class StorageModel(db.Model):
         return str(_str)
     
     def __repr__(self):
-        return f"{self.name} - {self.room.name}"
+        return f"{self.name} - room id: {self.room_id}"
+    
+    def get_resp_user(self) -> Users:
+        user = Users.query.filter_by(id=self.responsible_user_id).first()
+        return user
 
 class RoomModel(db.Model):
 
@@ -288,12 +347,15 @@ class RoomModel(db.Model):
     )
 
     def __unicode__(self):
-        _str = "ID: %s, Post: %s" % (self.id, self.task)
+        _str = "ID: %s, Post: %s" % (self.id, self.name)
         return str(_str)
     
     def __repr__(self):
         return self.name
-
+    
+    def get_resp_user(self) -> Users:
+        user = Users.query.filter_by(id=self.responsible_user_id).first()
+        return user
 
 # Customized UsageModelAdmin model admin
 class UsageModelAdmin(sqla.ModelView):

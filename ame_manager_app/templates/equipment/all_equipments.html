@@ -1,0 +1,45 @@
+{% from "macros/_form.html" import render_form %}
+
+{% set page_title = 'All Equipments' %}
+
+{% extends 'layouts/base.html' %}
+
+
+{% block body %}
+  <div class="container">
+    <div class="row mt-5">
+      <div class="col-6 offset-3">
+        <h5>Equipments:</h5>
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>Equipment name </th>
+              <th>Latest location id</th>
+              <th>In use by</th>
+              <th>Responsible user</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% if equipments|length > 0 %}
+              {% for equipment in equipments %}
+              <tr>
+                <td>{{ equipment.name }}</td>
+                <td>{{ equipment.get_latest_location().name}} in {{ equipment.get_latest_location().room.name}}</td>
+                <td>{{ equipment.get_current_active_usage().user}}</td>
+                <td>
+                  <div class="btn-group" role="group" aria-label="Task Actions">
+                    <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-primary" href="{{ url_for('equipment.view_equipment', id=equipment.id) }}">View</a>
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+            {% else %}
+              <tr>
+              </tr>
+            {% endif %}
+          </tbody>
+        </table>
+    </div>
+  </div>
+
+{% endblock %}

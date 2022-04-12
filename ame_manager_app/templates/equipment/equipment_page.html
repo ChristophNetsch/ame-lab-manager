@@ -9,6 +9,7 @@
     <div class="row mt-5">
       <div class="col-6 offset-3">
       	<div class="card mb-6 box-shadow">
+          <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-info" href="{{ url_for('equipment.generate_qr', id=equipment.id) }}">GENERATE QR</a>
             <div class="card-body">
             	<p class="card-text">Equipment name: {{ equipment.name }}</p>
               <p></p>
