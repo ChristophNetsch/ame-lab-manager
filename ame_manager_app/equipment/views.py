@@ -11,6 +11,9 @@ from ame_manager_app.user import ADMIN
 from ame_manager_app.user.models import Users
 import datetime
 import qrcode
+import io
+
+
 from ..extensions import db
 
 equipment = Blueprint("equipment", __name__, url_prefix="/equipment")
@@ -141,11 +144,16 @@ def view_equipment(id):
 @equipment.route('/generate_qr/<id>', methods=['GET', 'POST'])
 def generate_qr(id):
     _equipment = EquipmentModel.query.filter_by(id=id).first()
-    _qrcode = qrcode.make(url_for('equipment.view_equipment', id=_equipment.id))
-    pathlib.Path(current_app.config['UPLOAD_FOLDER'], 'qr_codes').mkdir(parents=True, exist_ok=True)
-    _qrcode.save(pathlib.Path(current_app.config['UPLOAD_FOLDER'], 'qr_codes', _equipment.name + '.png'))
-    return send_file(pathlib.Path(current_app.config['UPLOAD_FOLDER'], 'qr_codes', _equipment.name + '.png'), mimetype='image/png')
-    #return redirect(url_for('equipment.view_equipment', id=_equipment.id))
+    
+    file = qrcode.make(url_for('equipment.view_equipment', id=_equipment.id))
+    buf = io.BytesIO()
+    file.save(buf)
+    buf.seek(0)
+    return send_file(buf, mimetype='image/png')
+    #pathlib.Path(current_app.config['UPLOAD_FOLDER'], 'qr_codes').mkdir(parents=True, exist_ok=True)#    
+    #_qrcode.save(pathlib.Path(current_app.config['UPLOAD_FOLDER'], 'qr_codes', _equipment.name + '.png'))
+    #return send_file(pathlib.Path(current_app.config['UPLOAD_FOLDER'], 'qr_codes', _equipment.name + '.png'), mimetype='image/png')
+    ##return redirect(url_for('equipment.view_equipment', id=_equipment.id))
 
 @equipment.route('/view_room/<id>', methods=['GET', 'POST'])
 def view_room(id):
@@ -202,16 +210,17 @@ def borrow_equipment(id):
         
     if _equipment is None:
         flash(f'Equipment {_equipment.name} with id {id} does not exist!', 'danger')
-        return redirect("/equipment/my_page")
+        return redirect(url_for('equipment.register_equipment'))
     
     if _equipment.is_in_use():
         flash(f'Equipment {_equipment.name} with id {id} is currently in use by {_equipment.get_current_active_usage().user}!', 'danger')
-        return redirect("/equipment/my_page")
+        return redirect("/equipment/my_page") #return redirect(url_for('equipment.view_equipment', id=_equipment.id))
     
     if _equipment.is_usable==False:
         _resp_user = Users.query.filter(Users.id == _equipment.responsible_user_id).first()
         flash(f'Equipment {_equipment.name} with id {id} is currently not usable. Please contact {_resp_user.name}!', 'danger')
-        return redirect("/equipment/my_page")
+        return redirect("/equipment/my_page") #return redirect(url_for('equipment.view_equipment', id=_equipment.id))
+
         
     if _form.validate_on_submit():
         _equipment=EquipmentModel.query.filter_by(id=_form.borrowing_equipment.data).first()
