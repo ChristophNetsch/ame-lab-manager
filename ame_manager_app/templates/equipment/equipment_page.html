@@ -15,7 +15,8 @@
               <p></p>
               <p class="text-muted">Reference URL: {{ equipment.reference_url }}</p>
               <p class="text-muted">Info text: {{ equipment.info_text }}</p>
-              <p class="text-muted">Storage location ID: {{ equipment.storage_location_id }}</p>
+              <p class="text-muted">Storage location: {{ equipment.storage_location }}</p>
+              <p class="text-muted">Current usage location: {{ equipment.get_latest_location() }}</p>
 
               <p class="text-muted">Responsible admin: {{ resp_user.name }} ({{ resp_user.email }})</p>
               <div class="d-flex justify-content-between align-items-center">

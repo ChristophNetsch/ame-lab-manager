@@ -166,7 +166,7 @@ class Users(db.Model, UserMixin):
         return str(_str)
 
     def __repr__(self):
-        return f"{self.name} ({self.name_short}))"
+        return f"{self.name}"
 
 # Customized User model admin
 class UsersAdmin(sqla.ModelView):

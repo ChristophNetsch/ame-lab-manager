@@ -1,19 +1,14 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
-from datetime import datetime
 
-import random
-from flask import flash, redirect, url_for
 
 from flask_admin.contrib import sqla
 from flask_login import current_user
 from sqlalchemy import Column
-from ame_manager_app import user
-
 from ame_manager_app.user.models import Users
 
 from ..extensions import db
-from ..utils import get_current_time, add_offset_days_on_datetime
+from ..utils import get_current_time
 
 class UsageModel(db.Model):
 
@@ -35,7 +30,7 @@ class UsageModel(db.Model):
         return str(_str)
 
     def __repr__(self):
-        return f"{self.name} (equipment:{self.equipment_id}, user:{self.user_id}, date_start:{self.date_start})"
+        return f"name: {self.name} (equipment: {self.equipment.name}, user: {self.user}, date_start: {self.date_start})"
 
 
 class EquipmentModel(db.Model):
@@ -145,9 +140,7 @@ class EquipmentModel(db.Model):
                 is_in_use=True,
             )
             db.session.add(_usage)
-            db.session.commit()
-            #flash(f'Borrowing Equipment successfull.', 'success')
-            
+            db.session.commit()            
         else:
             raise Exception(
                 f"Equipment {self} cannot be borrowed, already in use with usage {self.get_current_active_usage()}."
@@ -172,7 +165,6 @@ class EquipmentModel(db.Model):
                 )
         db.session.add(_briefing)
         db.session.commit()
-        #flash(f'Briefing submission successfull.', 'success')
 
     def add_comment(self,date,text,user, is_comment_for_responsible_admin, is_comment_for_users):
         _comment = CommentModel(
@@ -185,7 +177,6 @@ class EquipmentModel(db.Model):
         )
         db.session.add(_comment)
         db.session.commit()
-        #flash(f'Comment submission successfull.', 'success')
         
     def add_calibration(self,date,text,user,date_until):
         _comment = CalibrationModel(
@@ -197,36 +188,34 @@ class EquipmentModel(db.Model):
         )
         db.session.add(_comment)
         db.session.commit()
-        #flash(f'Calibration submission successfull.', 'success')
         
-def register_new_equipment(
-    storage_location,
-    responsible_user,
-    name:str="",
-    info_text:str="",
-    reference_url:str="",
-    id_lab_UKA:str="",
-    id_lab_CVE:str="",
-    is_usable:bool=False,
-    is_calibration_nessessary:bool=False,
-    is_briefing_nessessary:bool=False,
-    ):
-    _equipment = EquipmentModel(
-        responsible_user_id=responsible_user.id,
-        name=name,
-        info_text=info_text,
-        reference_url=reference_url,
-        storage_location_id=storage_location.id,
-        id_lab_UKA=id_lab_UKA,
-        id_lab_CVE=id_lab_CVE,
-        is_usable=is_usable,
-        is_calibration_nessessary=is_calibration_nessessary,
-        is_briefing_nessessary=is_briefing_nessessary,
-        datetime_register=get_current_time(),
-    )
-    db.session.add(_equipment)
-    db.session.commit()
-    #flash(f'Registering Equipment successfull.', 'success')
+    def register_equipment(
+        storage_location,
+        responsible_user,
+        name:str="",
+        info_text:str="",
+        reference_url:str="",
+        id_lab_UKA:str="",
+        id_lab_CVE:str="",
+        is_usable:bool=False,
+        is_calibration_nessessary:bool=False,
+        is_briefing_nessessary:bool=False,
+        ):
+        _equipment = EquipmentModel(
+            responsible_user_id=responsible_user.id,
+            name=name,
+            info_text=info_text,
+            reference_url=reference_url,
+            storage_location_id=storage_location.id,
+            id_lab_UKA=id_lab_UKA,
+            id_lab_CVE=id_lab_CVE,
+            is_usable=is_usable,
+            is_calibration_nessessary=is_calibration_nessessary,
+            is_briefing_nessessary=is_briefing_nessessary,
+            datetime_register=get_current_time(),
+        )
+        db.session.add(_equipment)
+        db.session.commit()
     
 class CommentModel(db.Model):
 
@@ -324,7 +313,7 @@ class StorageModel(db.Model):
         return str(_str)
     
     def __repr__(self):
-        return f"{self.name} - room id: {self.room_id}"
+        return f"{self.name} in {self.room.name}"
     
     def get_resp_user(self) -> Users:
         user = Users.query.filter_by(id=self.responsible_user_id).first()

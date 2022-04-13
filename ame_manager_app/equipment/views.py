@@ -18,37 +18,38 @@ from ..extensions import db
 
 equipment = Blueprint("equipment", __name__, url_prefix="/equipment")
 
-
-@equipment.route("/register")
+@equipment.route("/register", methods=["GET", "POST"])
 @login_required
-def register_equipment_view():
-    form_register = RegisterEquipmentForm()
-    form_register.responsible_user.choices = [(user.id, user.name) for user in Users.query.filter(Users.role_code == ADMIN).all()]
+def add_register_new_equipment():
+    form = RegisterEquipmentForm()
+    form.responsible_user.choices = [(user.id, user.name) for user in Users.query.filter(Users.role_code == ADMIN).all()]
     if current_user.role_code == ADMIN:
-        form_register.responsible_user.default = current_user.id
-    form_register.usage_location_id.choices = [(storage.id, str(storage.name) + " in " + str(storage.room_id)) for storage in StorageModel.query.all()]
-    form_register.is_usable.data = True
-    form_register.is_calibration_nessessary.data = False
-    form_register.is_briefing_nessessary.data = False
-    
-    if form_register.validate_on_submit():
-        _responsible_user=Users.query.filter_by(id=form_register.responsible_user.data).first()
-        _storage_location=StorageModel.query.filter_by(id=form_register.usage_location_id.data).first()
-        _dummy_equipment = EquipmentModel.query.first()
-
-        _dummy_equipment.register_new_equipment(
+        form.responsible_user.default = current_user.id
+    form.storage_location_id.choices = [(storage.id, str(storage.name) + " in " + str(storage.room_id)) for storage in StorageModel.query.all()]
+    form.is_usable.data = True
+    form.is_calibration_nessessary.data = False
+    form.is_briefing_nessessary.data = False
+    if form.validate_on_submit():
+        _responsible_user=Users.query.filter_by(id=form.responsible_user.data).first()
+        _storage_location=StorageModel.query.filter_by(id=form.storage_location_id.data).first()
+        equipment_model = EquipmentModel(
+            name=form.name.data,
+            info_text=form.info_text.data,
+            reference_url=form.reference_url.data,
             responsible_user_id=_responsible_user.id,
             storage_location_id=_storage_location.id,
-            info_text=form_register.info_text.data,
-            name=form_register.name.data,
-            reference_url=form_register.reference_url.data,
-            id_lab_UKA=form_register.id_lab_UKA.data,
-            id_lab_CVE=form_register.id_lab_CVE.data,
-            is_usable=form_register.is_usable.data,
-            is_calibration_nessessary=form_register.is_calibration_nessessary.data,
-            is_briefing_nessessary=form_register.is_briefing_nessessary.data,
-            )
-    return render_template("equipment/register_equipment.html", form=form_register)
+            is_usable=form.is_usable.data,
+            is_calibration_nessessary=form.is_calibration_nessessary.data,
+            is_briefing_nessessary=form.is_briefing_nessessary.data,
+            id_lab_CVE=form.id_lab_CVE.data,
+            id_lab_UKA=form.id_lab_UKA.data
+        )
+        db.session.add(equipment_model)
+        db.session.commit()
+        flash("Equipment was registered", "success")
+        return redirect(url_for('equipment.view_equipment', id=equipment_model.id))
+
+    return render_template("equipment/register_equipment.html", form=form)
 
 @equipment.route("/all_storages")
 @login_required
@@ -158,22 +159,21 @@ def generate_qr(id):
 @equipment.route('/view_room/<id>', methods=['GET', 'POST'])
 def view_room(id):
     _room = RoomModel.query.filter_by(id=id).first()
-    _storages = StorageModel.query.filter_by(room_id=id).all()
     _resp_user = Users.query.filter(Users.id == _room.responsible_user_id).first()
+    _storages = StorageModel.query.filter_by(room_id=id).all()
     _all_equipment_from_storages=[]
     _in_use_equipment_from_storages=[]
     _usable_equipment_from_storages=[]
     for _storage in _storages:
-        _all_equipment_from_storages.append(EquipmentModel.query.filter(EquipmentModel.id == _storage.id).all())
-        _in_use_equipment_from_storages.append(EquipmentModel.query.filter(EquipmentModel.id == _storage.id, EquipmentModel.is_usable==False).all())
-        _usable_equipment_from_storages.append(EquipmentModel.query.filter(EquipmentModel.id == _storage.id, EquipmentModel.is_usable==True).all())
+        _all_equipment_from_storages.append(EquipmentModel.query.filter(EquipmentModel.storage_location_id == _storage.id).all())
+        print(EquipmentModel.query.filter(EquipmentModel.id == _storage.id).all())
+    print(_storages)
+    print(_all_equipment_from_storages)
     return render_template('equipment/room_page.html',
                            room=_room,
+                           resp_user=_resp_user,
                            storages = _storages,
-                           resp_user = _resp_user,
                            all_equipment = _all_equipment_from_storages,
-                           usable_equipment = _usable_equipment_from_storages,
-                           in_use_equipment = _in_use_equipment_from_storages,
                            )
 
 
@@ -234,9 +234,11 @@ def borrow_equipment(id):
             borrowing_user=_user,
             usage_location = _usage_location,
             )
+        flash(f'Borrowing Equipment successfull.', 'success')
+
     flash(f'You can borrow this equipment. Please add some spicy infos.', 'secondary')
     return render_template('equipment/borrow_equipment.html', form=_form, equipment=_equipment)
-    
+
 @equipment.route('/return_equipment/<id>', methods=['GET', 'POST'])
 @login_required
 def return_equipment(id):
@@ -286,6 +288,7 @@ def add_briefing(id):
             user=_briefed_user,
             briefer=_briefer,
             )
+        flash(f'Briefing submission successfull.', 'success')
     return render_template('equipment/add_briefing.html',
                            form=_form,
                            equipment=_equipment,
@@ -310,6 +313,8 @@ def add_comment(id):
             is_comment_for_responsible_admin= True, 
             is_comment_for_users= True,
             )
+        flash(f'Comment submission successfull.', 'success')
+
     return render_template('equipment/add_comment.html',
                            form=_form,
                            equipment=_equipment,
@@ -332,6 +337,7 @@ def add_calibration(id):
             user= current_user,
             date_until= _form.date_until.data, 
             )
+        flash(f'Calibration submission successfull.', 'success')
     return render_template('equipment/add_calibration.html',
                            form=_form,
                            equipment=_equipment,

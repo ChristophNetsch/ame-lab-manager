@@ -16,7 +16,7 @@ class RegisterEquipmentForm(FlaskForm):
     reference_url = StringField("Reference URL", validators=[Optional()])
 
     responsible_user = SelectField(validators=[DataRequired()])
-    usage_location_id = SelectField(validators=[DataRequired()])
+    storage_location_id = SelectField("Storage location", validators=[DataRequired()])
 
     is_usable = BooleanField(" Is usable", validators=[Optional()])
     is_calibration_nessessary = BooleanField(" Calibration for use is necessary", validators=[Optional()])

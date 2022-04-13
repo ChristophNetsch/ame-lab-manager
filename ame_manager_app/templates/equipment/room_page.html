@@ -10,13 +10,13 @@
     <div class="col-6 offset-3">
       <div class="card mb-6 box-shadow">
           <div class="card-body">
-            <h3 class="card-text">Storage: {{ room.name }}</h3>
+            <h3 class="card-text">Room: {{ room.name }}</h3>
             <p></p>
             <p class="text-muted">Reference URL: {{ room.reference_url }}</p>
             <p class="text-muted">Info text: {{ room.info_text }}</p>
             <p class="text-muted">Room location ID: {{ room.id }}</p>
-            <p class="text-muted">Responsible admin ID: {{ room.responsible_user_id }}</p>
-            </div>
+            <p class="text-muted">Responsible admin: {{ resp_user.name }} ({{ resp_user.email }})</p>
+          </div>
           </div>
       </div>
     </div>
@@ -35,10 +35,11 @@
                         </tr>
                       </thead>
                       <tbody>
-                        {% if usable_equipment|length > 0 %}
-                          {% for item in usable_equipment %}
+                        {% if all_equipment|length > 0 %}
+                          {% for item in all_equipment %}
                           {% if item|length > 0 %}
                             {% for equipment in item %}
+                            {% if not equipment.is_in_use() %}
                             <tr>
                               <td>{{ equipment.name }}</td>
                               <td>
@@ -48,6 +49,7 @@
                                 </div>
                               </td>
                             </tr>
+                            {% endif %}
                             {% endfor %}
                           {% else %}
                             <tr>
@@ -66,10 +68,11 @@
                         </tr>
                       </thead>
                       <tbody>
-                        {% if in_use_equipment|length > 0 %}
-                        {% for item in in_use_equipment %}
+                        {% if all_equipment|length > 0 %}
+                        {% for item in all_equipment %}
                         {% if item|length > 0 %}
                           {% for equipment in item %}
+                          {% if equipment.is_in_use() %}
                           <tr>
                             <td>{{ equipment.name }}</td>
                             <td>
@@ -79,6 +82,7 @@
                               </div>
                             </td>
                           </tr>
+                          {% endif %}
                           {% endfor %}
                         {% else %}
                           <tr>
