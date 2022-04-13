@@ -105,6 +105,7 @@ def signup():
     if form.validate_on_submit():
         user = Users()
         user.status_code = 2
+        user.name_short = form.name_short.data
         user.account_type = 0
         form.populate_obj(user)
 

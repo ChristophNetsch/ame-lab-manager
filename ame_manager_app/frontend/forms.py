@@ -26,6 +26,7 @@ class LoginForm(FlaskForm):
 class SignupForm(FlaskForm):
     next = HiddenField()
     name = StringField("Name", [InputRequired(), Length(NAME_LEN_MIN, NAME_LEN_MAX)])
+    name_short = StringField("Names initials (3 characters)", [InputRequired(), Length(3, 4)])
     email = EmailField("Email", [InputRequired(), Email()])
     password = PasswordField(
         "Password",
