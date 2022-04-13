@@ -18,28 +18,6 @@ from ame_manager_app.user import ACTIVE, ADMIN, USER, Users
 
 application = create_app()
 
-@application.cli.command("initdb")
-def initdb():
-    """Init/reset database."""
-
-    db.drop_all()
-    configure_mappers()
-    db.create_all()
-
-    admin = Users(
-        name="admin",
-        name_short="xxx",
-        email="landoll@ame.rwth-aachen.de",
-        password="adminpassword",
-        role_code=ADMIN,
-        status_code=ACTIVE,
-    )
-
-    db.session.add(admin)
-    db.session.commit()
-    print("Database initialized with 2 users (admin, demo)")
-
-
 @application.cli.command("inittestdb")
 def inittestdb():
     """Init/reset database and write some dummy data to each table."""
