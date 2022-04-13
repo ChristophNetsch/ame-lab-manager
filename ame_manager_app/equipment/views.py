@@ -4,7 +4,7 @@ import pathlib
 from flask import Blueprint, current_app, flash, redirect, render_template, send_file, url_for
 from ..utils import get_current_time
 from flask_login import current_user, login_required
-from ame_manager_app.equipment.forms import RegisterEquipmentForm, FilterEquipmentForm,SearchEquipmentForm,BorrowEquipmentForm,AddCalibrationForm, AddBriefingForm, AddCommentForm
+from ame_manager_app.equipment.forms import BorrowMultipleEquipmentsForm, RegisterEquipmentForm, FilterEquipmentForm,SearchEquipmentForm,BorrowEquipmentForm,AddCalibrationForm, AddBriefingForm, AddCommentForm
 
 from ame_manager_app.equipment.models import EquipmentModel, StorageModel, UsageModel, RoomModel
 from ame_manager_app.user import ADMIN
@@ -142,7 +142,7 @@ def view_equipment(id):
                            resp_user = _resp_user,
                            )
     
-@equipment.route('/generate_qr/<id>', methods=['GET', 'POST'])
+@equipment.route('/qr/<id>', methods=['GET', 'POST'])
 def generate_qr(id):
     _equipment = EquipmentModel.query.filter_by(id=id).first()
     
@@ -151,10 +151,6 @@ def generate_qr(id):
     file.save(buf)
     buf.seek(0)
     return send_file(buf, mimetype='image/png')
-    #pathlib.Path(current_app.config['UPLOAD_FOLDER'], 'qr_codes').mkdir(parents=True, exist_ok=True)#    
-    #_qrcode.save(pathlib.Path(current_app.config['UPLOAD_FOLDER'], 'qr_codes', _equipment.name + '.png'))
-    #return send_file(pathlib.Path(current_app.config['UPLOAD_FOLDER'], 'qr_codes', _equipment.name + '.png'), mimetype='image/png')
-    ##return redirect(url_for('equipment.view_equipment', id=_equipment.id))
 
 @equipment.route('/view_room/<id>', methods=['GET', 'POST'])
 def view_room(id):
@@ -166,9 +162,6 @@ def view_room(id):
     _usable_equipment_from_storages=[]
     for _storage in _storages:
         _all_equipment_from_storages.append(EquipmentModel.query.filter(EquipmentModel.storage_location_id == _storage.id).all())
-        print(EquipmentModel.query.filter(EquipmentModel.id == _storage.id).all())
-    print(_storages)
-    print(_all_equipment_from_storages)
     return render_template('equipment/room_page.html',
                            room=_room,
                            resp_user=_resp_user,
@@ -196,7 +189,6 @@ def borrow_equipment(id):
     for equipment in equipments:
         if equipment.is_in_use()==False:
             is_not_in_use_equipments.append(equipment)
-    print(is_not_in_use_equipments)
     users = Users.query.all()
     storages_names = [(storage.name) for storage in storages]
     _form = BorrowEquipmentForm()
@@ -220,7 +212,6 @@ def borrow_equipment(id):
         _resp_user = Users.query.filter(Users.id == _equipment.responsible_user_id).first()
         flash(f'Equipment {_equipment.name} with id {id} is currently not usable. Please contact {_resp_user.name}!', 'danger')
         return redirect("/equipment/my_page") #return redirect(url_for('equipment.view_equipment', id=_equipment.id))
-
         
     if _form.validate_on_submit():
         _equipment=EquipmentModel.query.filter_by(id=_form.borrowing_equipment.data).first()
@@ -239,7 +230,65 @@ def borrow_equipment(id):
     flash(f'You can borrow this equipment. Please add some spicy infos.', 'secondary')
     return render_template('equipment/borrow_equipment.html', form=_form, equipment=_equipment)
 
-@equipment.route('/return_equipment/<id>', methods=['GET', 'POST'])
+@equipment.route('/borrow_multiples', methods=['GET', 'POST'])
+@login_required
+def borrow_multiple_equipments():
+    storages = StorageModel.query.filter_by(room_id=1).all()
+    equipments = EquipmentModel.query.filter_by(is_usable=True).all()
+    users = Users.query.all()
+    is_not_in_use_equipments=[]
+    for equipment in equipments:
+        if equipment.is_in_use()==False:
+            is_not_in_use_equipments.append(equipment)
+            
+    _form = BorrowMultipleEquipmentsForm()
+    _form.usage_location_id.choices = [(storage.id, storage.name) for storage in storages]
+    _form.alt1_usage_planned_end_date.data = datetime.date.today() + datetime.timedelta(days=1)
+    _form.name.data = "experimentname"
+    _form.user.choices = [(user.id, user.name) for user in users]
+    _form.borrowing_equipments.choices = [(equipment.id, equipment.name) for equipment in is_not_in_use_equipments]  
+    
+    if _form.validate_on_submit():
+        _borrowing_equipments = _form.borrowing_equipments.data
+
+        for _equipment_id in _borrowing_equipments:
+
+            if _equipment_id is None:
+                flash(f'Equipment with id {_equipment_id} does not exist!', 'danger')
+                bool_stopper = True
+            else:
+                _equipment = EquipmentModel.query.filter_by(id=int(_equipment_id)).first()
+                bool_stopper = False
+                if _equipment is None:
+                    flash(f'Equipment {_equipment.name} with id {_equipment.id} does not exist!', 'danger')
+                    bool_stopper = True
+                
+                if _equipment.is_in_use():
+                    flash(f'Equipment {_equipment.name} with id {_equipment.id} is currently in use by {_equipment.get_current_active_usage().user}!', 'danger')
+                    bool_stopper = True
+                
+                if _equipment.is_usable==False:
+                    _resp_user = Users.query.filter(Users.id == _equipment.responsible_user_id).first()
+                    flash(f'Equipment {_equipment.name} with id {_equipment.id} is currently not usable. Please contact {_resp_user.name}!', 'danger')
+                    bool_stopper = True
+
+                if bool_stopper == False:
+                    _equipment=EquipmentModel.query.filter_by(id=_equipment_id).first()
+                    _user=Users.query.filter_by(id=_form.user.data).first()
+                    _usage_location=StorageModel.query.filter_by(id=_form.usage_location_id.data).first()
+                    _equipment.borrow_equipment(
+                        name=_form.name.data,
+                        usage_start= _form.usage_start_datetime.data,
+                        usage_planned_end= _form.alt1_usage_planned_end_date.data,
+                        borrowing_user=_user,
+                        usage_location = _usage_location,
+                        )
+                    flash(f'Borrowing Equipment {_equipment.name} with id {_equipment.id} was successfull.', 'success')
+        flash(f'Borrowing multiple equipments process finished.', 'warning')
+    return render_template('equipment/borrow_multiple_equipments.html', form=_form)
+
+
+@equipment.route('/return/<id>', methods=['GET', 'POST'])
 @login_required
 def return_equipment(id):
     _equipment:EquipmentModel = EquipmentModel.query.filter_by(id=id).first()

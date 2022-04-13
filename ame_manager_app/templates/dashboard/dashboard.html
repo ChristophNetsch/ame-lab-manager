@@ -8,41 +8,8 @@
   <div class="container">
     <div class="row mt-5">
       <div class="col-6-aligncenter{float: none;margin: 0 auto;}">
-        <h3>Welcome to the start page</h3>
-        <h5>Current Usages for user: {{ user.name }}</h5>
-        <table class="table table-hover">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Eqipment</th>
-              <th>Start</th>
-              <th>Planned end</th>
-              <th>User actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% if usages|length > 0 %}
-              {% for usage in usages %}
-                {% if usage.is_in_use == true %}
-                  <tr>
-                    <td>{{ usage.name }}</td>
-                    <td>{{ usage.equipment.name}} (id:{{ usage.equipment.id}})</td>
-                    <td>{{ usage.date_start}}</td>
-                    <td>{{ usage.date_planned_end}}</td>
-                    <td>
-                      <div class="btn-group" role="group" aria-label="Task Actions">
-                        <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-primary" href="{{ url_for('equipment.view_equipment', id=usage.equipment_id) }}">View</a>
-                        <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-info" href="{{ url_for('equipment.add_comment', id=usage.equipment_id) }}">Comment</a>
-                        <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-info" href="{{ url_for('equipment.add_calibration', id=usage.equipment_id) }}">Calibrate</a>
-                        <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-danger" href="{{ url_for('equipment.return_equipment', id=usage.equipment_id) }}">Return</a>
-                      </div>
-                    </td>
-                  </tr>
-                {% endif %}
-              {% endfor %}
-            {% endif %}
-          </tbody>
-        </table>
+        <h3>Welcome to the start page, {{ user.name }}</h3>
     </div>
+  </div>
   </div>
 {% endblock %}

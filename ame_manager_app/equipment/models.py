@@ -117,7 +117,6 @@ class EquipmentModel(db.Model):
 
     def return_equipment(self):
         current_active_usage = self.get_current_active_usage()
-        print(current_active_usage)
         if current_active_usage is not None:
             current_active_usage.is_in_use = False
             current_active_usage.date_end = get_current_time()

@@ -1,0 +1,17 @@
+{% from "macros/_form.html" import render_form %}
+
+{% set page_title = 'Borrow Multiple Equipments' %}
+
+{% extends 'layouts/base.html' %}
+
+{% block body %}
+  <div class="container">
+    <div class="row mt-5">
+      <div class="col-6 offset-3">
+        <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-dark" href="/equipment/my_page">Back to my overview</a>
+        <hr>
+        {{ render_form(url_for('equipment.borrow_multiple_equipments'), form)}}
+      </div>
+    </div>
+  </div>
+{% endblock %}
