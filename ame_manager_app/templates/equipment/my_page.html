@@ -1,0 +1,166 @@
+{% from "macros/_form.html" import render_form %}
+
+{% set page_title = 'My Page' %}
+
+{% extends 'layouts/base.html' %}
+
+{% block body %}
+  <div class="container">
+    <div class="row mt-5">
+      <div class="col-6-aligncenter{float: none;margin: 0 auto;}">
+        <h3>Overview page for user: {{ user.name }} ({{ user.name_short }})</h3>
+        <hr>
+        <h5>Current Usages:</h5>
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Eqipment</th>
+              <th>Start</th>
+              <th>Planned end</th>
+              <th>User actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% if usages|length > 0 %}
+              {% for usage in usages %}
+                {% if usage.is_in_use == true %}
+                  <tr>
+                    <td>{{ usage.name }}</td>
+                    <td>{{ usage.equipment.name}} (id:{{ usage.equipment.id}})</td>
+                    <td>{{ usage.date_start}}</td>
+                    <td>{{ usage.date_planned_end}}</td>
+                    <td>
+                      <div class="btn-group" role="group" aria-label="Task Actions">
+                        <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-primary" href="{{ url_for('equipment.view_equipment', id=usage.equipment_id) }}">View</a>
+                        <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-info" href="{{ url_for('equipment.add_comment', id=usage.equipment.id) }}">Comment</a>
+                        <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-info" href="{{ url_for('equipment.add_calibration', id=usage.equipment.id) }}">Calibrate</a>
+                        <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-danger" href="{{ url_for('equipment.return_equipment', id=usage.equipment.id) }}">Return</a>
+                      </div>
+                    </td>
+                  </tr>
+                {% endif %}
+              {% endfor %}
+            {% endif %}
+          </tbody>
+        </table>
+
+        <hr>
+        <h5>Past Usages History:</h5>
+        {% if usages|length > 0 %}
+        <table class="table table-hover">
+                      <thead>
+                        <tr>
+                          <th>Name</th>
+                          <th>Equipment</th>
+                          <th>Start</th>
+                          <th>End</th>
+                          <th>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                          {% for usage in usages %}
+                            {% if usage.is_in_use == false %}
+                              <tr>
+                                <td>{{ usage.name }}</td>
+                                <td>{{ usage.equipment.name}} (id:{{ usage.equipment.id}})</td>
+                                <td>{{ usage.date_start}}</td>
+                                <td>{{ usage.date_end}}</td>
+                                <td>
+                                  <div class="btn-group" role="group" aria-label="Task Actions">
+                                    <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-primary" href="{{ url_for('equipment.view_equipment', id=usage.equipment_id) }}">View</a>
+                                    <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-info" href="{{ url_for('equipment.add_comment', id=usage.equipment.id) }}">Comment</a>
+                                  </div>
+                                </td>
+                              </tr>
+                            {% endif %}
+                          {% endfor %}
+                      </tbody>
+                    </table>
+                    {% endif %}
+
+                    <hr>
+                    <h5>My Equipment Responsibility:</h5>
+                    {% if responsible_equipments|length > 0 %}
+                    <table class="table table-hover">
+                      <thead>
+                        <tr>
+                          <th>Equipment</th>
+                          <th>ID</th>
+                          <th>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                          {% for equipment in responsible_equipments %}
+                          <tr>
+                            <td>{{ equipment.name }}</td>
+                            <td>{{ equipment.id }}</td>
+                            <td>
+                              <div class="btn-group" role="group" aria-label="Task Actions">
+                                <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-primary" href="{{ url_for('equipment.view_equipment', id=equipment.id) }}">View</a>
+                                <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-info" href="{{ url_for('equipment.add_comment', id=equipment.id) }}">Comment</a>
+                                <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-info" href="{{ url_for('equipment.add_calibration', id=equipment.id) }}">Calibrate</a>
+                                <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-warning" href="{{ url_for('equipment.add_briefing', id=equipment.id) }}">Brief</a>
+                                <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-secondary" href="{{ url_for('equipment.borrow_equipment', id=equipment.id) }}">Borrow</a>
+                                <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-danger" href="{{ url_for('equipment.return_equipment', id=equipment.id) }}">Return</a>
+                              </div>
+                            </td>
+                          </tr>
+                          {% endfor %}
+                      </tbody>
+                    </table>
+                    {% endif %}
+
+                    <hr>
+                    <h5>My Storage Responsibility:</h5>
+                    {% if storages|length > 0 %}
+                    <table class="table table-hover">
+                      <thead>
+                        <tr>
+                          <th>Storage</th>
+                          <th>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                          {% for storage in storages %}
+                          <tr>
+                            <td>{{ storage.name }}</td>
+                            <td>
+                              <div class="btn-group" role="group" aria-label="Task Actions">
+                                <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-primary" href="{{ url_for('equipment.view_storage', id=storage.id) }}">View storage</a>
+                              </div>
+                            </td>
+                          </tr>
+                          {% endfor %}
+                      </tbody>
+                    </table>
+                    {% endif %}
+
+                    <hr>
+                    <h5>My Room Responsibility:</h5>
+                    {% if rooms|length > 0 %}
+                    <table class="table table-hover">
+                      <thead>
+                        <tr>
+                          <th>Room</th>
+                          <th>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                          {% for room in rooms %}
+                          <tr>
+                            <td>{{ room.name }}</td>
+                            <td>
+                              <div class="btn-group" role="group" aria-label="Task Actions">
+                                <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-primary" href="{{ url_for('equipment.view_room', id=room.id) }}">View room</a>
+                              </div>
+                            </td>
+                          </tr>
+                          {% endfor %}
+                      </tbody>
+                    </table>
+                    {% endif %}
+                  </div>
+    </div>
+  </div>
+{% endblock %}

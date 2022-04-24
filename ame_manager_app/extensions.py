@@ -27,7 +27,7 @@ class HomeView(AdminIndexView):
 
 
 admin = Admin(
-    name="AME Lab Manager Admin",
+    name="CVE AME Lab Manager Admin",
     template_mode="bootstrap3",
     index_view=HomeView(name="Home"),
 )

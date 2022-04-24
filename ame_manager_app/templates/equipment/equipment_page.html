@@ -1,0 +1,84 @@
+{% from "macros/_form.html" import render_form %}
+
+{% set page_title = 'View Equipment' %}
+
+{% extends 'layouts/base.html' %}
+
+{% block body %}
+  <div class="container">
+    <div class="row mt-5">
+      <div class="col-6 offset-3">
+      	<div class="card mb-6 box-shadow">
+          <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-info" href="{{ url_for('equipment.generate_qr', id=equipment.id) }}">GENERATE QR</a>
+            <div class="card-body">
+            	<p class="card-text">Equipment name: {{ equipment.name }}</p>
+              <p></p>
+              <p class="text-muted">Reference URL: {{ equipment.reference_url }}</p>
+              <p class="text-muted">Info text: {{ equipment.info_text }}</p>
+              <p class="text-muted">Storage location: {{ equipment.storage_location }}</p>
+              <p class="text-muted">Current usage location: {{ equipment.get_latest_location() }}</p>
+
+              <p class="text-muted">Responsible admin: {{ resp_user.name }} ({{ resp_user.email }})</p>
+              <div class="d-flex justify-content-between align-items-center">
+                <small class="text-muted">Is usable: {{ equipment.is_usable }}</small>
+                <small class="text-muted">Is calibration nessessary: {{ equipment.is_calibration_nessessary }}</small>
+                <small class="text-muted">Is briefing nessessary: {{ equipment.is_briefing_nessessary }}</small>
+              </div>
+              <hr>
+
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th>User Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+    
+                    <tr>
+                      <td>
+                        <div class="btn-group" role="group" aria-label="Task Actions">
+                          <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-info" href="{{ url_for('equipment.add_comment', id=equipment.id) }}">Comment</a>
+                          <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-info" href="{{ url_for('equipment.add_calibration', id=equipment.id) }}">Calibrate</a>
+                          <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-secondary" href="{{ url_for('equipment.borrow_equipment', id=equipment.id) }}">Borrow</a>
+                          <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-danger" href="{{ url_for('equipment.return_equipment', id=equipment.id) }}">Return</a>
+                        </div>
+                      </td>
+                    </tr>
+                </tbody>
+              </table>
+
+              <hr>
+              <p>Calibrations: </p>
+                {% if equipment.calibrations|length > 0 %}
+                  {% for calibration in equipment.calibrations %}
+                    <p>{{ calibration }}</p>
+                  {% endfor %}
+                {% endif %}
+              <hr>
+              <p>Comments: </p>
+                {% if equipment.calibrations|length > 0 %}
+                  {% for comment in equipment.comments %}
+                    <p>{{ comment }}</p>
+                  {% endfor %}
+                {% endif %}
+              <hr>
+              <p>Briefings: </p>
+                {% if equipment.briefings|length > 0 %}
+                  {% for briefing in equipment.briefings %}
+                    <p>{{ briefing }}</p>
+                  {% endfor %}
+                {% endif %}
+          <hr>
+          <p>Usages: </p>
+          {% if equipment.usages|length > 0 %}
+            {% for usage in equipment.usages %}
+              <p>{{ usage }}</p>
+            {% endfor %}
+          {% endif %}
+          <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-dark" href="/equipment/my_page">Back to my overview</a>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,85 @@
+{% from "macros/_form.html" import render_form %}
+
+{% set page_title = 'Storage Page' %}
+
+{% extends 'layouts/base.html' %}
+
+{% block body %}
+<div class="container">
+  <div class="row mt-5">
+    <div class="col-6 offset-3">
+      <div class="card mb-6 box-shadow">
+          <div class="card-body">
+            <h3 class="card-text">Storage: {{ storage.name }}</h3>
+            <p></p>
+            <p class="text-muted">Reference URL: {{ storage.reference_url }}</p>
+            <p class="text-muted">Info text: {{ storage.info_text }}</p>
+            <p class="text-muted">Room location ID: {{ storage.room_id }}</p>
+            <p class="text-muted">Responsible admin: {{ resp_user.name }} ({{ resp_user.email }})</p>
+          </div>
+          </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <div class="container">
+    <div class="row mt-5">
+      <div class="col-6 offset-3">
+        <h5>Storage Equipment:</h5>
+                    <table class="table table-hover">
+                      <thead>
+                        <tr>
+                          <th>Equipment name </th>
+                          <th>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% if storage.stored_equipment|length > 0 %}
+                          {% for equipment in storage.stored_equipment %}
+                          <tr>
+                            <td>{{ equipment.name }}</td>
+                            <td>
+                              <div class="btn-group" role="group" aria-label="Task Actions">
+                                <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-primary" href="{{ url_for('equipment.view_equipment', id=equipment.id) }}">View</a>
+                              </div>
+                            </td>
+                          </tr>
+                          {% endfor %}
+                        {% else %}
+                          <tr>
+                          </tr>
+                        {% endif %}
+                      </tbody>
+                    </table>
+
+                    <h5>Usages in Storage:</h5>
+                    <table class="table table-hover">
+                      <thead>
+                        <tr>
+                          <th>Not pretty usage description</th>
+                          <th></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% if storage.usages|length > 0 %}
+                          {% for usage in storage.usages %}
+                          <tr>
+                            <td>{{ usage }}</td>
+                            <td>
+                              <div class="btn-group" role="group" aria-label="Task Actions">
+                              </div>
+                            </td>
+                          </tr>
+                          {% endfor %}
+                        {% else %}
+                          <tr>
+                          </tr>
+                        {% endif %}
+                      </tbody>
+                    </table>
+                    <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-dark" href="/equipment/my_page">Back to my overview</a>
+      </div>
+    </div>
+  </div>
+{% endblock %}

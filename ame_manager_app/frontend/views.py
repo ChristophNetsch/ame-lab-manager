@@ -9,12 +9,13 @@ from flask_login import (current_user, login_fresh, login_required, login_user,
 from itsdangerous import URLSafeSerializer
 
 from ..emails import send_async_email
-from ..equipment import SearchEquipmentForm
+from ..equipment import FilterEquipmentForm, SearchEquipmentForm
 from ..extensions import db, login_manager
 from ..user import ACTIVE, Users
 from .forms import (ChangePasswordForm, ContactUsForm, LoginForm,
                     RecoverPasswordForm, SignupForm)
 from .models import ContactUs
+from ame_manager_app.equipment.models import EquipmentModel, StorageModel, RoomModel, UsageModel
 
 frontend = Blueprint("frontend", __name__)
 
@@ -22,14 +23,14 @@ frontend = Blueprint("frontend", __name__)
 @frontend.route("/dashboard")
 @login_required
 def dashboard():
-
-    _task_form = SearchEquipmentForm()
-
+    _usages = UsageModel.query.filter_by(user_id=current_user.id).all()
     return render_template(
-        "dashboard/dashboard.html", task_form=_task_form, _active_dash=True
+        "dashboard/dashboard.html", 
+        usages = _usages,
+        user = current_user,
+        _active_dash=True,
     )
-
-
+    
 @frontend.route("/")
 def index():
     # current_app.logger.debug('debug')
@@ -104,6 +105,7 @@ def signup():
     if form.validate_on_submit():
         user = Users()
         user.status_code = 2
+        user.name_short = form.name_short.data
         user.account_type = 0
         form.populate_obj(user)
 

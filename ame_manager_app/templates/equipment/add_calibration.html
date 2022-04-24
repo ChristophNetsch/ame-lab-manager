@@ -1,6 +1,7 @@
+
 {% from "macros/_form.html" import render_form %}
 
-{% set page_title = 'Borrow Equipment' %}
+{% set page_title = 'Add Calibration' %}
 
 {% extends 'layouts/base.html' %}
 
@@ -10,7 +11,7 @@
       <div class="col-6 offset-3">
         <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-dark" href="/equipment/my_page">Back to my overview</a>
         <hr>
-        {{ render_form(url_for('equipment.borrow_equipment', id=equipment.id), form)}}
+        {{ render_form(url_for('equipment.add_calibration', id=equipment.id), form)}}
       </div>
     </div>
   </div>

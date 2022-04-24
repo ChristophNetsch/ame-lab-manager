@@ -87,7 +87,15 @@ class Users(db.Model, UserMixin):
         backref=db.backref("user", lazy="joined"),
         lazy="select",
     )
-
+    """
+    briefings_recieved = db.relationship(
+        "BriefingModel",
+        foreign_keys = ["briefing.user_id"]
+        ),# lazy="dynamic", ),#lazy="select",
+    briefings_held = db.relationship(
+        "BriefingModel",
+        foreign_keys = ["briefing.briefer_id"])
+    """
     usages = db.relationship(
         "UsageModel",
         backref=db.backref("user", lazy="joined"),
@@ -158,7 +166,7 @@ class Users(db.Model, UserMixin):
         return str(_str)
 
     def __repr__(self):
-        return f"{self.name} ({self.name_short}))"
+        return f"{self.name}"
 
 # Customized User model admin
 class UsersAdmin(sqla.ModelView):

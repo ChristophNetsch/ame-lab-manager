@@ -10,36 +10,13 @@ dotenv.load_dotenv()
 from sqlalchemy.orm.mapper import configure_mappers
 
 from ame_manager_app import create_app
-from ame_manager_app.equipment.models import (CalibrationModel, CommentModel, EquipmentModel,
+from ame_manager_app.equipment.models import (BriefingModel, CalibrationModel, CommentModel, EquipmentModel,
                                               RoomModel, StorageModel,
                                               UsageModel)
 from ame_manager_app.extensions import db
 from ame_manager_app.user import ACTIVE, ADMIN, USER, Users
 
 application = create_app()
-
-
-@application.cli.command("initdb")
-def initdb():
-    """Init/reset database."""
-
-    db.drop_all()
-    configure_mappers()
-    db.create_all()
-
-    admin = Users(
-        name="admin",
-        name_short="xxx",
-        email="landoll@ame.rwth-aachen",
-        password="adminpassword",
-        role_code=ADMIN,
-        status_code=ACTIVE,
-    )
-
-    db.session.add(admin)
-    db.session.commit()
-    print("Database initialized with 2 users (admin, demo)")
-
 
 @application.cli.command("inittestdb")
 def inittestdb():
@@ -58,8 +35,6 @@ def inittestdb():
         status_code=ACTIVE,
     )
 
-    db.session.add(admin)
-
     user = Users(
         name="Morty",
         name_short="mty",
@@ -68,7 +43,6 @@ def inittestdb():
         role_code=USER,
         status_code=ACTIVE,
     )
-    db.session.add(user)
 
     _room = RoomModel(
         name="secret lab",
@@ -77,13 +51,15 @@ def inittestdb():
         responsible_user=admin,
     )
     db.session.add(_room)
-
+    _room = RoomModel.query.filter_by(name=_room.name).first()
+    
     _storage1 = StorageModel(
         name="box 1",
         room=_room,
         info_text="impossible to find",
-        responsible_user=user,
+        responsible_user=admin,
     )
+    db.session.add(_storage1)
 
     _storage2 = StorageModel(
         name="refrigerator",
@@ -106,6 +82,9 @@ def inittestdb():
             storage_location=random.choice([_storage1, _storage2]),
             is_usable=random.choice([True, False]),
             responsible_user=admin,
+            id_lab_UKA=random.randint(10000,99999),
+            id_lab_CVE=random.randint(0,1000),
+            datetime_register = get_current_time_with_offset_days(random.randint(-365, -1))
         )
 
         db.session.add(_equipment)
@@ -130,6 +109,17 @@ def inittestdb():
         )
         db.session.add(_calibration)
 
+    for briefing_text in ["User is now briefed", "devices for dummys!"]:
+        _briefing= BriefingModel(
+            user=user,
+            briefer=admin,
+            equipment=random.choice(_equipments),
+            text=briefing_text,
+            date=get_current_time_with_offset_days(random.randint(-10,-1)),
+            date_until=get_current_time_with_offset_days(random.randint(365,365*3)),
+        )
+        db.session.add(_briefing)
+        
     _usages = []
     for _equipment in _equipments:
         print(f"Borrowing {_equipment}")
@@ -163,10 +153,11 @@ def inittestdb():
     for _unused_equipment in _unused_equipments:
         print(f"Borrowing {_unused_equipment}")
         _unused_equipment.borrow_equipment(
-            user=random.choice([admin, user]),
+            borrowing_user=random.choice([admin, user]),
             usage_location=random.choice([_storage1, _storage2]),
             name="secret experiment round 2",
-            usage_duration_days=90,
+            usage_start = get_current_time_with_offset_days(random.randint(-365, -1)),
+            usage_planned_end = get_current_time_with_offset_days(random.randint(1, 365)),
         )
 
     print("Database successfully initialized with dummy data.")

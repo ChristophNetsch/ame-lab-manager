@@ -1,14 +1,36 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
+
 from flask_admin.contrib import sqla
 from flask_login import current_user
 from sqlalchemy import Column
-
 from ame_manager_app.user.models import Users
 
 from ..extensions import db
-from ..utils import get_current_time, get_current_time_with_offset_days
+from ..utils import get_current_time
+
+class UsageModel(db.Model):
+
+    __tablename__ = "usage"
+
+    id = Column(db.Integer, primary_key=True)
+    name = Column(db.String(2048))
+    date_start = Column(db.DateTime, default=get_current_time)
+    date_planned_end = Column(db.DateTime)
+    date_end = Column(db.DateTime)
+    usage_location_id = Column(db.Integer, db.ForeignKey("storage_location.id")) 
+    equipment_id = Column(db.Integer, db.ForeignKey("equipment.id"))
+    user_id = Column(db.Integer, db.ForeignKey("user.id"))
+    #reference_url = Column(db.String(2048)) # Wiki
+    is_in_use = Column(db.Boolean)
+
+    def __unicode__(self):
+        _str = "ID: %s, Post: %s" % (self.id, self.task)
+        return str(_str)
+
+    def __repr__(self):
+        return f"name: {self.name} (equipment: {self.equipment.name}, user: {self.user}, date_start: {self.date_start})"
 
 
 class EquipmentModel(db.Model):
@@ -16,7 +38,8 @@ class EquipmentModel(db.Model):
     __tablename__ = "equipment"
 
     id = Column(db.Integer, primary_key=True)
-    id_lab= Column(db.Integer)
+    id_lab_CVE= Column(db.Integer)
+    id_lab_UKA= Column(db.Integer)
     name = Column(db.String(2048))
     responsible_user_id = Column(db.Integer, db.ForeignKey("user.id"))
     info_text = Column(db.Text)
@@ -25,14 +48,15 @@ class EquipmentModel(db.Model):
     is_usable = Column(db.Boolean)
     is_calibration_nessessary = Column(db.Boolean)
     is_briefing_nessessary = Column(db.Boolean)
+    datetime_register = Column(db.DateTime, default=get_current_time)
 
     calibrations = db.relationship(
         "CalibrationModel",
         backref=db.backref("equipment", lazy="joined"),
         lazy="select",
     )
-    # ??? comments?
-    responsible_rooms = db.relationship(  
+
+    comments = db.relationship(  
         "CommentModel",     
         backref=db.backref("equipment", lazy="joined"),
         lazy="select",
@@ -42,7 +66,6 @@ class EquipmentModel(db.Model):
         backref=db.backref("equipment", lazy="joined"),
         lazy="select",
     )
-    # Einweisungen
     briefings = db.relationship(
         "BriefingModel",
         backref=db.backref("equipment", lazy="joined"),
@@ -78,9 +101,22 @@ class EquipmentModel(db.Model):
         else:
             return None
 
+    def get_resp_user(self) -> Users:
+        user = Users.query.filter_by(id=self.responsible_user_id).first()
+        return user
+    
+    def get_storage_location(self) -> StorageModel:
+        storage = StorageModel.query.filter_by(id=self.storage_location_id).first()
+        return storage
+
+    def get_latest_location(self) -> StorageModel:
+        storage = StorageModel.query.filter_by(id=self.storage_location_id).first()
+        if self.is_in_use() ==True:
+            storage = StorageModel.query.filter_by(id=self.get_current_active_usage().usage_location_id).first()
+        return storage
+
     def return_equipment(self):
         current_active_usage = self.get_current_active_usage()
-        print(current_active_usage)
         if current_active_usage is not None:
             current_active_usage.is_in_use = False
             current_active_usage.date_end = get_current_time()
@@ -89,32 +125,97 @@ class EquipmentModel(db.Model):
             raise Exception(
                 f"Equipment {self} cannot be returned, since it has not been borrowed."
             )
-
-    def borrow_equipment(
-        self,
-        user: Users,
-        usage_location: "StorageModel",
-        name: str = "",
-        usage_duration_days: int = 90,
-    ):
+            
+    def borrow_equipment(self,name,usage_start,usage_planned_end,borrowing_user,usage_location):
         if not self.is_in_use():
             _usage = UsageModel(
+                user_id=borrowing_user.id,
                 name=name,
-                date_start=get_current_time(),
-                date_planned_end=get_current_time_with_offset_days(usage_duration_days),
-                usage_location=usage_location,
-                equipment=self,
+                date_start = usage_start,
+                #date_planned_end=add_offset_days_on_datetime(get_current_time(), usage_duration_days),
+                date_planned_end=usage_planned_end,
+                usage_location_id = usage_location.id,
+                equipment_id=self.id,
                 is_in_use=True,
-                user=user,
             )
             db.session.add(_usage)
-            db.session.commit()
+            db.session.commit()            
         else:
             raise Exception(
                 f"Equipment {self} cannot be borrowed, already in use with usage {self.get_current_active_usage()}."
             )
+    def add_briefing(self,date,text,user,date_until,briefer):
+        if date_until is None:
+            _briefing = BriefingModel(
+                user_id=user.id,
+                briefer_id=briefer.id,
+                date = date,
+                equipment_id=self.id,
+                text = text,
+            )
+        else:
+            _briefing = BriefingModel(
+                user_id=user.id,
+                briefer_id=briefer.id,
+                date = date,
+                equipment_id=self.id,
+                text = text,
+                date_until=date_until,
+                )
+        db.session.add(_briefing)
+        db.session.commit()
 
-
+    def add_comment(self,date,text,user, is_comment_for_responsible_admin, is_comment_for_users):
+        _comment = CommentModel(
+            user_id=user.id,
+            date = date,
+            equipment_id=self.id,
+            text = text,
+            is_comment_for_responsible_admin = is_comment_for_responsible_admin,
+            is_comment_for_users = is_comment_for_users,
+        )
+        db.session.add(_comment)
+        db.session.commit()
+        
+    def add_calibration(self,date,text,user,date_until):
+        _comment = CalibrationModel(
+            user_id=user.id,
+            date = date,
+            equipment_id=self.id,
+            text = text,
+            date_until = date_until,
+        )
+        db.session.add(_comment)
+        db.session.commit()
+        
+    def register_equipment(
+        storage_location,
+        responsible_user,
+        name:str="",
+        info_text:str="",
+        reference_url:str="",
+        id_lab_UKA:str="",
+        id_lab_CVE:str="",
+        is_usable:bool=False,
+        is_calibration_nessessary:bool=False,
+        is_briefing_nessessary:bool=False,
+        ):
+        _equipment = EquipmentModel(
+            responsible_user_id=responsible_user.id,
+            name=name,
+            info_text=info_text,
+            reference_url=reference_url,
+            storage_location_id=storage_location.id,
+            id_lab_UKA=id_lab_UKA,
+            id_lab_CVE=id_lab_CVE,
+            is_usable=is_usable,
+            is_calibration_nessessary=is_calibration_nessessary,
+            is_briefing_nessessary=is_briefing_nessessary,
+            datetime_register=get_current_time(),
+        )
+        db.session.add(_equipment)
+        db.session.commit()
+    
 class CommentModel(db.Model):
 
     __tablename__ = "comment"
@@ -132,7 +233,7 @@ class CommentModel(db.Model):
         return str(_str)
 
     def __repr__(self):
-        return f"{self.text} (id #{self.id}, date:{self.date}))"
+        return f"{self.text} (id #{self.id}, user:{self.user_id}, date:{self.date}))"
 
 class CalibrationModel(db.Model):
 
@@ -150,7 +251,7 @@ class CalibrationModel(db.Model):
         return str(_str)
 
     def __repr__(self):
-        return f"{self.text} (id #{self.id}, date:{self.date}))"
+        return f"{self.text} (equipment:{self.equipment_id}, user:{self.user_id}, date:{self.date}))"
 
 class BriefingModel(db.Model):
 
@@ -159,6 +260,10 @@ class BriefingModel(db.Model):
     id = Column(db.Integer, primary_key=True)
     user_id = Column(db.Integer, db.ForeignKey("user.id"))
     briefer_id= Column(db.Integer, db.ForeignKey("user.id"))
+    
+    user = db.relationship("Users", foreign_keys=[user_id])
+    briefer = db.relationship("Users", foreign_keys=[briefer_id])
+    
     date = Column(db.DateTime, default=get_current_time)
     equipment_id = Column(db.Integer, db.ForeignKey("equipment.id"))
     text = Column(db.Text)
@@ -169,30 +274,15 @@ class BriefingModel(db.Model):
         return str(_str)
 
     def __repr__(self):
-        return f"{self.text} (id #{self.id}, date:{self.date}))"
-
-class UsageModel(db.Model):
-
-    __tablename__ = "usage"
-
-    id = Column(db.Integer, primary_key=True)
-    name = Column(db.String(2048))
-    date_start = Column(db.DateTime, default=get_current_time)
-    date_planned_end = Column(db.DateTime)
-    date_end = Column(db.DateTime)
-    usage_location_id = Column(db.Integer, db.ForeignKey("storage_location.id")) 
-    equipment_id = Column(db.Integer, db.ForeignKey("equipment.id"))
-    user_id = Column(db.Integer, db.ForeignKey("user.id"))
-    reference_url = Column(db.String(2048)) # Wiki
-    is_in_use = Column(db.Boolean)
-
-    def __unicode__(self):
-        _str = "ID: %s, Post: %s" % (self.id, self.task)
-        return str(_str)
-
-    def __repr__(self):
-        return f"{self.name} (equipment:{self.equipment.name}, user:{self.user.name}, date_start:{self.date_start})"
-
+        return f"user:{self.user_id}, id #{self.equipment_id}, date:{self.date}"
+    
+    def get_user(self) -> Users:
+        user = Users.query.filter_by(id=self.user_id).first()
+        return user
+    
+    def get_briefer(self) -> Users:
+        briefer = Users.query.filter_by(id=self.briefer_id).first()
+        return briefer
 
 class StorageModel(db.Model):
 
@@ -222,7 +312,11 @@ class StorageModel(db.Model):
         return str(_str)
     
     def __repr__(self):
-        return f"{self.room.name} {self.name}"
+        return f"{self.name} in {self.room.name}"
+    
+    def get_resp_user(self) -> Users:
+        user = Users.query.filter_by(id=self.responsible_user_id).first()
+        return user
 
 class RoomModel(db.Model):
 
@@ -241,12 +335,15 @@ class RoomModel(db.Model):
     )
 
     def __unicode__(self):
-        _str = "ID: %s, Post: %s" % (self.id, self.task)
+        _str = "ID: %s, Post: %s" % (self.id, self.name)
         return str(_str)
     
     def __repr__(self):
         return self.name
-
+    
+    def get_resp_user(self) -> Users:
+        user = Users.query.filter_by(id=self.responsible_user_id).first()
+        return user
 
 # Customized UsageModelAdmin model admin
 class UsageModelAdmin(sqla.ModelView):
