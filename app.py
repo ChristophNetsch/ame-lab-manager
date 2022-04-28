@@ -20,7 +20,6 @@ from ame_manager_app.user import ACTIVE, ADMIN, USER, Users
 application = create_app()
 app = application # gunicorn compatibility
 
-
 @application.cli.command("inittestdb")
 def inittestdb():
     """Init/reset database and write some dummy data to each table."""
@@ -165,6 +164,24 @@ def inittestdb():
 
     print("Database successfully initialized with dummy data.")
 
+with app.app_context():
+    db.create_all(app=app)
+    
+    # Create admin user if not exists
+    admins = Users.query.filter_by(role_code=ADMIN).all()
+    if len(admins) == 0:
+        admin_user = Users(
+            name="admin",
+            name_short="admin",
+            email="",
+            password="adminpassword",
+            role_code=ADMIN,
+            status_code=ACTIVE,
+        )
+        db.session.add(admin_user)
+        db.session.commit()
+        print("Created new database with user admin/adminpassword")
 
+        
 if __name__ == '__main__':
     app.run()
