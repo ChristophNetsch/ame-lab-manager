@@ -173,7 +173,7 @@ with app.app_context():
         admin_user = Users(
             name="admin",
             name_short="admin",
-            email="",
+            email="admin@lab-manager.com",
             password="adminpassword",
             role_code=ADMIN,
             status_code=ACTIVE,
