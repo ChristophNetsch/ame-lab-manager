@@ -29,7 +29,7 @@ class DefaultConfig(BaseConfig):
 
     DEFAULT_ADMIN_EMAIL = "admin@lab-manager.com"
     DEFAULT_ADMIN_NAME = "admin"
-    DEFAULT_ADMIN_PASSWORD = "admin"
+    DEFAULT_ADMIN_PASSWORD = "admin123"
     
     # Flask-Sqlalchemy
     SQLALCHEMY_ECHO = False
