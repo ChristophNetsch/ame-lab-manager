@@ -168,13 +168,13 @@ with app.app_context():
     db.create_all(app=app)
     
     # Create admin user if not exists
-    admins = Users.query.filter_by(role_code=ADMIN).all()
+    admins = Users.query.filter_by(role_code=ADMIN, email=app.config["DEFAULT_ADMIN_EMAIL"]).all()
     if len(admins) == 0:
         admin_user = Users(
-            name="admin",
-            name_short="admin",
-            email="admin@lab-manager.com",
-            password="adminpassword",
+            name=app.config["DEFAULT_ADMIN_NAME"],
+            name_short=app.config["DEFAULT_ADMIN_NAME"],
+            email=app.config["DEFAULT_ADMIN_EMAIL"],
+            password=app.config["DEFAULT_ADMIN_PASSWORD"],
             role_code=ADMIN,
             status_code=ACTIVE,
         )
