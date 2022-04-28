@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 import dotenv
+from pathlib2 import Path
+
+from ame_manager_app.user.constants import ACTIVE, ADMIN
 
 dotenv.load_dotenv()
 
@@ -43,7 +46,6 @@ def create_app(config=None, app_name=None, blueprints=None):
     configure_logging(app)
     configure_template_filters(app)
     configure_error_handlers(app)
-
     return app
 
 
@@ -62,6 +64,8 @@ def configure_extensions(app):
 
     # flask-sqlalchemy
     db.init_app(app)
+    
+    admin = initdb_if_not_exists(app)
 
     # flask-mail
     mail.init_app(app)
@@ -86,6 +90,25 @@ def configure_extensions(app):
         return Users.query.get(id)
 
     login_manager.setup_app(app)
+
+def initdb_if_not_exists(app):
+    if not Path(app.config["SQLITE_DATABASE_PATH"]).exists():
+        db.create_all()
+        # Create admin user
+        admin = Users(
+            name="admin",
+            name_short="admin",
+            email="micha.landoll@rwth-aachen.de",
+            password="adminpassword",
+            role_code=ADMIN,
+            status_code=ACTIVE,
+        )
+        db.session.add(admin)
+        db.session.commit()
+        print("Created new database with user admin/adminpassword")
+    else:
+        print("Database already exists")
+    return admin
 
 
 def configure_blueprints(app, blueprints):

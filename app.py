@@ -21,26 +21,6 @@ application = create_app()
 app = application # gunicorn compatibility
 
 
-@application.cli.command("initdb")
-def initdb_if_not_exists():
-    if not Path(application.config["SQLITE_DATABASE_PATH"]).exists():
-        db.create_all()
-        # Create admin user
-        admin = Users(
-            name="admin",
-            name_short="admin",
-            email="micha.landoll@rwth-aachen.de",
-            password="adminpassword",
-            role_code=ADMIN,
-            status_code=ACTIVE,
-        )
-        db.session.add(admin)
-        db.session.commit()
-        print("Created new database with user admin/adminpassword")
-        return
-    print("Database already exists")
-    return
-
 @application.cli.command("inittestdb")
 def inittestdb():
     """Init/reset database and write some dummy data to each table."""
@@ -187,5 +167,4 @@ def inittestdb():
 
 
 if __name__ == '__main__':
-    initdb_if_not_exists()
     app.run()
