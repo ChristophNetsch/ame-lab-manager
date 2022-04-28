@@ -18,6 +18,7 @@ from ame_manager_app.extensions import db
 from ame_manager_app.user import ACTIVE, ADMIN, USER, Users
 
 application = create_app()
+app = application # gunicorn compatibility
 
 
 @application.cli.command("initdb")
@@ -187,4 +188,4 @@ def inittestdb():
 
 if __name__ == '__main__':
     initdb_if_not_exists()
-    application.run()
+    app.run()
