@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 import random
-
+import logging
 import dotenv
+from pathlib2 import Path
 
 from ame_manager_app.utils import get_current_time_with_offset_days
 
@@ -17,6 +18,27 @@ from ame_manager_app.extensions import db
 from ame_manager_app.user import ACTIVE, ADMIN, USER, Users
 
 application = create_app()
+
+
+@application.cli.command("initdb")
+def initdb_if_not_exists():
+    if not Path(application.config["SQLITE_DATABASE_PATH"]).exists():
+        db.create_all()
+        # Create admin user
+        admin = Users(
+            name="admin",
+            name_short="admin",
+            email="micha.landoll@rwth-aachen.de",
+            password="adminpassword",
+            role_code=ADMIN,
+            status_code=ACTIVE,
+        )
+        db.session.add(admin)
+        db.session.commit()
+        print("Created new database with user admin/adminpassword")
+        return
+    print("Database already exists")
+    return
 
 @application.cli.command("inittestdb")
 def inittestdb():
@@ -161,3 +183,8 @@ def inittestdb():
         )
 
     print("Database successfully initialized with dummy data.")
+
+
+if __name__ == '__main__':
+    initdb_if_not_exists()
+    application.run()

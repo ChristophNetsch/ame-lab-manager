@@ -1,0 +1,4 @@
+{
+    "appService.defaultWebAppToDeploy": "/subscriptions/f95df825-613f-4f40-9333-2dc41eab4281/resourceGroups/appsvc_linux_centralus_basic/providers/Microsoft.Web/sites/lab-manager",
+    "appService.deploySubpath": "."
+}

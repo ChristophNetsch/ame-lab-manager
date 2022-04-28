@@ -2,6 +2,8 @@
 
 import os
 
+from pathlib2 import Path
+
 from .utils import INSTANCE_FOLDER_PATH
 
 
@@ -30,7 +32,8 @@ class DefaultConfig(BaseConfig):
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # SQLITE for production
-    SQLALCHEMY_DATABASE_URI = f"sqlite:///{INSTANCE_FOLDER_PATH}/db.sqlite"
+    SQLITE_DATABASE_PATH = Path(INSTANCE_FOLDER_PATH, "db.sqlite")
+    SQLALCHEMY_DATABASE_URI = f"sqlite:///{SQLITE_DATABASE_PATH}"
 
     # POSTGRESQL for production
     # SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://postgres:pass@ip/dbname'
