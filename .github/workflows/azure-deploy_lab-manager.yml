@@ -26,7 +26,12 @@ jobs:
         run: |
           python -m venv venv
           source venv/bin/activate
-      
+
+      - name: "Lint extension"
+        run: |
+          pip3 install flake8
+          flake8 .
+
       - name: Install dependencies
         run: pip install -r requirements.txt
         
@@ -61,3 +66,8 @@ jobs:
           app-name: 'lab-manager'
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_7590DC4124DF43A4ACFA8EFA6DECB360 }}
+
+      - name: 'Start App'
+        run: |
+          flask initdb
+          flask run
