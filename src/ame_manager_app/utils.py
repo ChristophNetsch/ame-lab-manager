@@ -8,7 +8,7 @@ import pathlib
 
 # Instance folder path, to keep stuff aware from flask app.
 INSTANCE_FOLDER_PATH = pathlib.Path(
-    pathlib.Path(__file__).parents[1], "tmp", "app_instance"
+    pathlib.Path(__file__).parents[2], "app_data", "app_instance"
 )
 INSTANCE_FOLDER_PATH.mkdir(exist_ok=True, parents=True)
 

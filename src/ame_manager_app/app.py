@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
 import dotenv
-from pathlib2 import Path
-
-from ame_manager_app.user.constants import ACTIVE, ADMIN
 
 dotenv.load_dotenv()
 
