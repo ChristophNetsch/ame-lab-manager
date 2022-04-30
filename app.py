@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import random
-
 import dotenv
+from flask.cli import with_appcontext
 
 from ame_manager_app.utils import get_current_time_with_offset_days
 
@@ -16,9 +16,10 @@ from ame_manager_app.equipment.models import (BriefingModel, CalibrationModel, C
 from ame_manager_app.extensions import db
 from ame_manager_app.user import ACTIVE, ADMIN, USER, Users
 
-application = create_app()
+app = create_app()
 
-@application.cli.command("inittestdb")
+@app.cli.command("inittestdb")
+@with_appcontext
 def inittestdb():
     """Init/reset database and write some dummy data to each table."""
 
@@ -161,3 +162,29 @@ def inittestdb():
         )
 
     print("Database successfully initialized with dummy data.")
+
+
+
+@app.cli.command("initdb")
+@with_appcontext
+def inittestdb():
+    """Init/reset database and create one admin user."""
+    db.drop_all(app=app)
+    configure_mappers()
+    db.create_all(app=app)
+    
+    admin_user = Users(
+        name=app.config["DEFAULT_ADMIN_NAME"],
+        name_short=app.config["DEFAULT_ADMIN_NAME"],
+        email=app.config["DEFAULT_ADMIN_EMAIL"],
+        password=app.config["DEFAULT_ADMIN_PASSWORD"],
+        role_code=ADMIN,
+        status_code=ACTIVE,
+    )
+    db.session.add(admin_user)
+    db.session.commit()
+    print("Created new database with user admin/adminpassword")
+
+        
+if __name__ == '__main__':
+    app.run()

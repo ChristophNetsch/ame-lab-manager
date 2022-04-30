@@ -5,6 +5,7 @@ instance/*
 .webassets-cache
 # .env
 tmp/
+app_data/
 
 ### Flask.Python Stack ###
 # Byte-compiled / optimized / DLL files

@@ -6,7 +6,15 @@ dotenv.load_dotenv()
 from flask import Flask
 from flask_admin.contrib import sqla
 
-from ame_manager_app.equipment.models import CalibrationModel, BriefingModel, CommentModel, EquipmentModel, StorageModel, RoomModel, UsageModel, UsageModelAdmin
+from ame_manager_app.equipment.models import (
+    CalibrationModel,
+    BriefingModel,
+    CommentModel,
+    EquipmentModel,
+    StorageModel,
+    RoomModel,
+    UsageModelAdmin,
+)
 
 from .config import DefaultConfig
 from .equipment import equipment

@@ -2,6 +2,8 @@
 
 import os
 
+from pathlib2 import Path
+
 from .utils import INSTANCE_FOLDER_PATH
 
 
@@ -25,12 +27,17 @@ class DefaultConfig(BaseConfig):
 
     DEBUG = True
 
+    DEFAULT_ADMIN_EMAIL = "admin@lab-manager.com"
+    DEFAULT_ADMIN_NAME = "admin"
+    DEFAULT_ADMIN_PASSWORD = "admin123"
+
     # Flask-Sqlalchemy
     SQLALCHEMY_ECHO = False
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # SQLITE for production
-    SQLALCHEMY_DATABASE_URI = f"sqlite:///{INSTANCE_FOLDER_PATH}/db.sqlite"
+    SQLITE_DATABASE_PATH = Path(INSTANCE_FOLDER_PATH, "db.sqlite")
+    SQLALCHEMY_DATABASE_URI = f"sqlite:///{SQLITE_DATABASE_PATH}"
 
     # POSTGRESQL for production
     # SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://postgres:pass@ip/dbname'
@@ -49,6 +56,6 @@ class DefaultConfig(BaseConfig):
     MAIL_USERNAME = "admin@ame-manager.local"
     MAIL_PASSWORD = ""
     MAIL_DEFAULT_SENDER = MAIL_USERNAME
-    
+
     # Borrowing
     MAX_DAYS_BORROW = 365
