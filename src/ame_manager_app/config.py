@@ -30,7 +30,7 @@ class DefaultConfig(BaseConfig):
     DEFAULT_ADMIN_EMAIL = "admin@lab-manager.com"
     DEFAULT_ADMIN_NAME = "admin"
     DEFAULT_ADMIN_PASSWORD = "admin123"
-    
+
     # Flask-Sqlalchemy
     SQLALCHEMY_ECHO = False
     SQLALCHEMY_TRACK_MODIFICATIONS = False
@@ -56,6 +56,6 @@ class DefaultConfig(BaseConfig):
     MAIL_USERNAME = "admin@ame-manager.local"
     MAIL_PASSWORD = ""
     MAIL_DEFAULT_SENDER = MAIL_USERNAME
-    
+
     # Borrowing
     MAX_DAYS_BORROW = 365

@@ -1,17 +1,17 @@
 from setuptools import setup
 
-desc = 'A Flask Webapp to manage lab inventory.'
+desc = "A Flask Webapp to manage lab inventory."
 
 setup(
-    name='ame_manager_app',
-    version='0.0.1',
-    author='Micha Landoll',
+    name="ame_manager_app",
+    version="0.0.1",
+    author="Micha Landoll",
     description=desc,
-    license='MIT',
-    setup_requires=['setuptools_scm'],
+    license="MIT",
+    setup_requires=["setuptools_scm"],
     include_package_data=True,
-    platforms='any',
-    python_requires='>=3.7',
+    platforms="any",
+    python_requires=">=3.7",
     zip_safe=False,
     install_requires=[
         "Flask[async]==2.0.2",
@@ -31,15 +31,15 @@ setup(
         "qrcode",
     ],
     classifiers=[
-        'Environment :: Web Environment',
-        'Framework :: Flask',
-        'Intended Audience :: Developers',
-        'License :: OSI Approved :: MIT License',
-        'Operating System :: OS Independent',
-        'Programming Language :: Python',
-        'Programming Language :: Python :: 3',
-        'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
-        'Topic :: Software Development :: Libraries :: Python Modules',
-        'Topic :: Database'
-    ]
+        "Environment :: Web Environment",
+        "Framework :: Flask",
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 3",
+        "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
+        "Topic :: Software Development :: Libraries :: Python Modules",
+        "Topic :: Database",
+    ],
 )

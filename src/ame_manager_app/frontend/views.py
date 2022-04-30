@@ -2,20 +2,42 @@
 
 from uuid import uuid4
 
-from flask import (Blueprint, current_app, flash, redirect, render_template,
-                   request, url_for)
-from flask_login import (current_user, login_fresh, login_required, login_user,
-                         logout_user)
+from flask import (
+    Blueprint,
+    current_app,
+    flash,
+    redirect,
+    render_template,
+    request,
+    url_for,
+)
+from flask_login import (
+    current_user,
+    login_fresh,
+    login_required,
+    login_user,
+    logout_user,
+)
 from itsdangerous import URLSafeSerializer
 
 from ..emails import send_async_email
 from ..equipment import FilterEquipmentForm, SearchEquipmentForm
 from ..extensions import db, login_manager
 from ..user import ACTIVE, Users
-from .forms import (ChangePasswordForm, ContactUsForm, LoginForm,
-                    RecoverPasswordForm, SignupForm)
+from .forms import (
+    ChangePasswordForm,
+    ContactUsForm,
+    LoginForm,
+    RecoverPasswordForm,
+    SignupForm,
+)
 from .models import ContactUs
-from ame_manager_app.equipment.models import EquipmentModel, StorageModel, RoomModel, UsageModel
+from ame_manager_app.equipment.models import (
+    EquipmentModel,
+    StorageModel,
+    RoomModel,
+    UsageModel,
+)
 
 frontend = Blueprint("frontend", __name__)
 
@@ -25,12 +47,13 @@ frontend = Blueprint("frontend", __name__)
 def dashboard():
     _usages = UsageModel.query.filter_by(user_id=current_user.id).all()
     return render_template(
-        "dashboard/dashboard.html", 
-        usages = _usages,
-        user = current_user,
+        "dashboard/dashboard.html",
+        usages=_usages,
+        user=current_user,
         _active_dash=True,
     )
-    
+
+
 @frontend.route("/")
 def index():
     # current_app.logger.debug('debug')

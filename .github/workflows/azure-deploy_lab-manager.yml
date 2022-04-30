@@ -69,5 +69,4 @@ jobs:
 
       - name: 'Start App'
         run: |
-          flask initdb
           flask run

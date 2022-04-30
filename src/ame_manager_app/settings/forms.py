@@ -2,8 +2,7 @@
 
 from flask_login import current_user
 from flask_wtf import FlaskForm
-from wtforms import (EmailField, PasswordField, StringField, SubmitField,
-                     ValidationError)
+from wtforms import EmailField, PasswordField, StringField, SubmitField, ValidationError
 from wtforms.validators import Email, EqualTo, InputRequired, Length
 
 from ..user import Users

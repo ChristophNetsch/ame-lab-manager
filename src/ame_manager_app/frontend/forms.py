@@ -2,13 +2,20 @@
 
 from flask import Markup
 from flask_wtf import FlaskForm
-from wtforms import (BooleanField, EmailField, HiddenField, PasswordField,
-                     StringField, SubmitField, TextAreaField, ValidationError)
+from wtforms import (
+    BooleanField,
+    EmailField,
+    HiddenField,
+    PasswordField,
+    StringField,
+    SubmitField,
+    TextAreaField,
+    ValidationError,
+)
 from wtforms.validators import Email, EqualTo, InputRequired, Length
 
 from ..user import Users
-from ..utils import (NAME_LEN_MAX, NAME_LEN_MIN, PASSWORD_LEN_MAX,
-                     PASSWORD_LEN_MIN)
+from ..utils import NAME_LEN_MAX, NAME_LEN_MIN, PASSWORD_LEN_MAX, PASSWORD_LEN_MIN
 
 terms_html = Markup('<a target="blank" href="/terms">Terms of Service</a>')
 
@@ -26,7 +33,9 @@ class LoginForm(FlaskForm):
 class SignupForm(FlaskForm):
     next = HiddenField()
     name = StringField("Name", [InputRequired(), Length(NAME_LEN_MIN, NAME_LEN_MAX)])
-    name_short = StringField("Names initials (3 characters)", [InputRequired(), Length(3, 4)])
+    name_short = StringField(
+        "Names initials (3 characters)", [InputRequired(), Length(3, 4)]
+    )
     email = EmailField("Email", [InputRequired(), Email()])
     password = PasswordField(
         "Password",

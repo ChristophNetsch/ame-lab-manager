@@ -168,6 +168,7 @@ class Users(db.Model, UserMixin):
     def __repr__(self):
         return f"{self.name}"
 
+
 # Customized User model admin
 class UsersAdmin(sqla.ModelView):
     column_list = (
@@ -190,10 +191,11 @@ class UsersAdmin(sqla.ModelView):
     column_searchable_list = ("email", Users.email)
     column_filters = ("id", "name", "email", "created_time", "role_code")
 
-    form_excluded_columns = ["password",
-                             "Comments",
-                             "Usages",
-                             ]
+    form_excluded_columns = [
+        "password",
+        "Comments",
+        "Usages",
+    ]
 
     form_choices = {
         "role_code": [("2", "User"), ("0", "Admin")],
