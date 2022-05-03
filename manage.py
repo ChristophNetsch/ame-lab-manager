@@ -10,7 +10,7 @@ dotenv.load_dotenv()
 from sqlalchemy.orm.mapper import configure_mappers
 
 from ame_manager_app import create_app
-from ame_manager_app.equipment.models import (BriefingModel, CalibrationModel, CommentModel, EquipmentModel,
+from ame_manager_app.equipment.models import (BriefingModel, CalibrationModel, CommentModel, EquipmentModel, LocationUsageModel,
                                               RoomModel, StorageModel,
                                               UsageModel)
 from ame_manager_app.extensions import db
@@ -67,6 +67,7 @@ def inittestdb():
         info_text="No snacks! Only for embryos!",
         responsible_user=user,
     )
+
     _equipments = []
     for equipment_name in [
         "portal gun",
@@ -159,5 +160,32 @@ def inittestdb():
             usage_start = get_current_time_with_offset_days(random.randint(-365, -1)),
             usage_planned_end = get_current_time_with_offset_days(random.randint(1, 365)),
         )
+
+    _location_usages = []
+    for _storage in [_storage1, _storage2]:
+        print(f"Borrowing location {_storage}")
+        _location_usage = LocationUsageModel(
+            name="secret experiment",
+            date_start=get_current_time_with_offset_days(random.randint(-365, -1)),
+            date_planned_end=get_current_time_with_offset_days(random.randint(1, 365)),
+            location_usage=_storage,
+            is_in_use=True,
+            user=random.choice([admin, user]),
+        )
+
+        db.session.add(_location_usage)
+        _location_usages.append(_location_usage)
+
+    db.session.commit()
+
+    _used_locations = StorageModel.query.filter(
+        StorageModel.location_usages.any(LocationUsageModel.is_in_use == True)
+    ).all()
+
+    _return_locations = _used_locations[:2]
+    for _return_location in _return_locations:
+        print(f"Returning location usage {_return_location}")
+        _return_location.return_location_usage()
+
 
     print("Database successfully initialized with dummy data.")

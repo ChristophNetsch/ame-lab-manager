@@ -32,6 +32,27 @@ class UsageModel(db.Model):
     def __repr__(self):
         return f"name: {self.name} (equipment: {self.equipment.name}, user: {self.user}, date_start: {self.date_start})"
 
+class LocationUsageModel(db.Model):
+
+    __tablename__ = "location_usage"
+
+    id = Column(db.Integer, primary_key=True)
+    name = Column(db.String(2048))
+    date_start = Column(db.DateTime, default=get_current_time)
+    date_planned_end = Column(db.DateTime)
+    date_end = Column(db.DateTime)
+    usage_location_id = Column(db.Integer, db.ForeignKey("storage_location.id")) 
+    user_id = Column(db.Integer, db.ForeignKey("user.id"))
+    #reference_url = Column(db.String(2048)) # Wiki
+    is_in_use = Column(db.Boolean)
+
+    def __unicode__(self):
+        _str = "ID: %s, Post: %s" % (self.id, self.task)
+        return str(_str)
+
+    def __repr__(self):
+        return f"name: {self.name} (location: {self.location_usage.name}, user: {self.user}, date_start: {self.date_start})"
+
 
 class EquipmentModel(db.Model):
 
@@ -306,7 +327,61 @@ class StorageModel(db.Model):
         backref=db.backref("usage_location", lazy="joined"),
         lazy="select",
     )
+    location_usages = db.relationship(
+        "LocationUsageModel",
+        backref=db.backref("location_usage", lazy="joined"),
+        lazy="select",
+    )
+    def is_in_use(self):
+        return self.get_current_active_usage() is not None
 
+    def is_in_use_by(self, user:Users):
+        current_active_usage = self.get_current_active_usage()
+        if current_active_usage is None:
+            return False
+        if not current_active_usage.user_id == user.id:
+            return False
+        return True
+            
+    def get_current_active_usage(self) -> LocationUsageModel:
+        usages = [
+            u for u in sorted(self.location_usages, key=lambda x: x.date_start) if u.is_in_use
+        ]
+        if len(usages) > 0:
+            if len(usages) > 1:
+                print(f"Warning: multiple active usages registered for {self}.")
+            return usages[-1]
+        else:
+            return None
+
+    def return_location_usage(self):
+        current_active_usage = self.get_current_active_usage()
+        if current_active_usage is not None:
+            current_active_usage.is_in_use = False
+            current_active_usage.date_end = get_current_time()
+            db.session.commit()
+        else:
+            raise Exception(
+                f"Equipment {self} cannot be returned, since it has not been borrowed."
+            )
+            
+    def borrow_location_usage(self,name,usage_start,usage_planned_end,borrowing_user):
+        if not self.is_in_use():
+            _usage = LocationUsageModel(
+                user_id=borrowing_user.id,
+                name=name,
+                date_start = usage_start,
+                #date_planned_end=add_offset_days_on_datetime(get_current_time(), usage_duration_days),
+                date_planned_end=usage_planned_end,
+                usage_location_id = self.id,
+                is_in_use=True,
+            )
+            db.session.add(_usage)
+            db.session.commit()            
+        else:
+            raise Exception(
+                f"Location {self} cannot be borrowed, already in use with usage {self.get_current_active_usage()}."
+            )
     def __unicode__(self):
         _str = "ID: %s, Post: %s" % (self.id, self.task)
         return str(_str)

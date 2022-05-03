@@ -15,7 +15,7 @@
           <thead>
             <tr>
               <th>Name</th>
-              <th>Eqipment</th>
+              <th>Equipment</th>
               <th>Start</th>
               <th>Planned end</th>
               <th>User actions</th>
@@ -112,6 +112,73 @@
                     {% endif %}
 
                     <hr>
+                    <h5>Current Location Usages:</h5>
+                    <table class="table table-hover">
+                      <thead>
+                        <tr>
+                          <th>Name</th>
+                          <th>Location</th>
+                          <th>Start</th>
+                          <th>Planned end</th>
+                          <th>User actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% if location_usages|length > 0 %}
+                          {% for usage in location_usages %}
+                            {% if usage.is_in_use == true %}
+                              <tr>
+                                <td>{{ usage.name }}</td>
+                                <td>{{ usage.location_usage.name}} (id:{{ usage.location_usage.id}})</td>
+                                <td>{{ usage.date_start}}</td>
+                                <td>{{ usage.date_planned_end}}</td>
+                                <td>
+                                  <div class="btn-group" role="group" aria-label="Task Actions">
+                                    <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-danger" href="{{ url_for('equipment.return_location', id=usage.location_usage.id) }}">Return</a>
+                                  </div>
+                                </td>
+                              </tr>
+                            {% endif %}
+                          {% endfor %}
+                        {% endif %}
+                      </tbody>
+                    </table>
+            
+                    <hr>
+
+                    <h5>Past Location Usages History:</h5>
+                    {% if location_usages|length > 0 %}
+                    <table class="table table-hover">
+                                  <thead>
+                                    <tr>
+                                      <th>Name</th>
+                                      <th>Location</th>
+                                      <th>Start</th>
+                                      <th>End</th>
+                                      <th>Actions</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                      {% for usage in location_usages %}
+                                        {% if usage.is_in_use == false %}
+                                          <tr>
+                                            <td>{{ usage.name }}</td>
+                                            <td>{{ usage.location_usage.name}} (id:{{ usage.location_usage.id}})</td>
+                                            <td>{{ usage.date_start}}</td>
+                                            <td>{{ usage.date_end}}</td>
+                                            <td>
+                                              <div class="btn-group" role="group" aria-label="Task Actions">
+                                              </div>
+                                            </td>
+                                          </tr>
+                                        {% endif %}
+                                      {% endfor %}
+                                  </tbody>
+                                </table>
+                                {% endif %}
+            
+                                <hr>
+
                     <h5>My Storage Responsibility:</h5>
                     {% if storages|length > 0 %}
                     <table class="table table-hover">

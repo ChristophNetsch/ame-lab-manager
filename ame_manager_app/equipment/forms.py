@@ -32,6 +32,15 @@ class BorrowEquipmentForm(FlaskForm):
     #alt2_usage_duration_days = IntegerField("Planned usage duration in days")
     usage_location_id = SelectField(validators=[DataRequired()])
     submit = SubmitField("Borrow")
+
+class BorrowLocationForm(FlaskForm):
+    borrowing_location = SelectField(validators=[DataRequired()])
+    user = SelectField(validators=[DataRequired()])
+    name = StringField("Usage name", validators=[DataRequired(), Length(5, 2048)])
+    usage_start_datetime = DateTimeField("Usage start date", validators=[DataRequired()],format="%d.%m.%Y %H:%M:%S", default=get_current_time())
+    alt1_usage_planned_end_date = DateField("Planned usage end")
+    #alt2_usage_duration_days = IntegerField("Planned usage duration in days")
+    submit = SubmitField("Borrow")
     
 class BorrowMultipleEquipmentsForm(FlaskForm):
     borrowing_equipments = SelectMultipleField(coerce=int, validators=[Optional()])
