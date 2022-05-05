@@ -15,7 +15,7 @@ from ..user import ACTIVE, Users
 from .forms import (ChangePasswordForm, ContactUsForm, LoginForm,
                     RecoverPasswordForm, SignupForm)
 from .models import ContactUs
-from ame_manager_app.equipment.models import EquipmentModel, StorageModel, RoomModel, UsageModel
+from ame_manager_app.equipment.models import EquipmentModel, StorageModel, RoomModel, UsageModel, LocationUsageModel
 
 frontend = Blueprint("frontend", __name__)
 

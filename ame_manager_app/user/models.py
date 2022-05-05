@@ -101,7 +101,13 @@ class Users(db.Model, UserMixin):
         backref=db.backref("user", lazy="joined"),
         lazy="select",
     )
-
+    
+    location_usages = db.relationship(
+        "LocationUsageModel",
+        backref=db.backref("user", lazy="joined"),
+        lazy="select",
+    )
+    
     created_time = Column(db.DateTime, default=get_current_time)
 
     _password = Column("password", db.String(100), nullable=False)

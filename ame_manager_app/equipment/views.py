@@ -4,14 +4,15 @@ import pathlib
 from flask import Blueprint, current_app, flash, redirect, render_template, send_file, url_for
 from ..utils import get_current_time
 from flask_login import current_user, login_required
-from ame_manager_app.equipment.forms import BorrowMultipleEquipmentsForm, RegisterEquipmentForm, FilterEquipmentForm,SearchEquipmentForm,BorrowEquipmentForm,AddCalibrationForm, AddBriefingForm, AddCommentForm
+from ame_manager_app.equipment.forms import BorrowLocationForm, BorrowMultipleEquipmentsForm, RegisterEquipmentForm, FilterEquipmentForm,SearchEquipmentForm,BorrowEquipmentForm,AddCalibrationForm, AddBriefingForm, AddCommentForm
 
-from ame_manager_app.equipment.models import EquipmentModel, StorageModel, UsageModel, RoomModel
+from ame_manager_app.equipment.models import EquipmentModel, StorageModel, UsageModel, LocationUsageModel, RoomModel
 from ame_manager_app.user import ADMIN
 from ame_manager_app.user.models import Users
 import datetime
 import qrcode
 import io
+from PIL import ImageFont, ImageDraw, Image
 
 
 from ..extensions import db
@@ -76,6 +77,7 @@ def search():
     rooms = RoomModel.query.all()
     storages = StorageModel.query.all()
     _usages = UsageModel.query.filter_by(user_id=current_user.id).all()
+    _location_usages = LocationUsageModel.query.filter_by(user_id=current_user.id).all()
 
     _form_search = SearchEquipmentForm()
     _form_search.equipment_id.choices = [(equipment.id, equipment.name) for equipment in equipments]
@@ -121,6 +123,7 @@ def search():
 @login_required
 def my_page():
     _usages = UsageModel.query.filter_by(user_id=current_user.id).all()
+    _location_usages = LocationUsageModel.query.filter_by(user_id=current_user.id).all()
     _responsible_equipments = EquipmentModel.query.filter_by(responsible_user_id=current_user.id).all()
     _responsible_storages = StorageModel.query.filter_by(responsible_user_id=current_user.id).all()
     _responsible_rooms = RoomModel.query.filter_by(responsible_user_id=current_user.id).all()
@@ -130,6 +133,7 @@ def my_page():
                            responsible_equipments=_responsible_equipments,
                            usages=_usages,
                            storages = _responsible_storages,
+                           location_usages = _location_usages,
                            rooms = _responsible_rooms,
                            )
 
@@ -145,13 +149,12 @@ def view_equipment(id):
 @equipment.route('/qr/<id>', methods=['GET', 'POST'])
 def generate_qr(id):
     _equipment = EquipmentModel.query.filter_by(id=id).first()
-    
     file = qrcode.make(url_for('equipment.view_equipment', id=_equipment.id))
     buf = io.BytesIO()
     file.save(buf)
     buf.seek(0)
     return send_file(buf, mimetype='image/png')
-
+ 
 @equipment.route('/view_room/<id>', methods=['GET', 'POST'])
 def view_room(id):
     _room = RoomModel.query.filter_by(id=id).first()
@@ -174,10 +177,77 @@ def view_room(id):
 def view_storage(id):
     _storage = StorageModel.query.filter_by(id=id).first()
     _resp_user = Users.query.filter(Users.id == _storage.responsible_user_id).first()
+    _location_usages = LocationUsageModel.query.filter_by(usage_location_id=id).all()
     return render_template('equipment/storage_page.html',
-                           storage=_storage,
-                           resp_user = _resp_user,
+                            storage=_storage,
+                            resp_user = _resp_user,
+                            location_usages = _location_usages,
                            )
+
+@equipment.route('/borrow_location/<id>', methods=['GET', 'POST'])
+@login_required
+def borrow_location(id):
+    _location:StorageModel = StorageModel.query.filter_by(id=id).first()
+    storages = StorageModel.query.filter_by(room_id=1).all()
+    equipments = EquipmentModel.query.filter_by(is_usable=True).all()
+    is_not_in_use_locations=[]
+    for location in storages:
+        if location.is_in_use()==False:
+            is_not_in_use_locations.append(location)
+    users = Users.query.all()
+    storages_names = [(storage.name) for storage in storages]
+    _form = BorrowLocationForm()
+    _form.borrowing_location.choices = [(storage.id, storage.name) for storage in storages]
+    _form.borrowing_location.default = _location.id
+    _form.alt1_usage_planned_end_date.data = datetime.date.today() + datetime.timedelta(days=1)
+    #_form.alt2_usage_duration_days.data = int(1)
+    _form.name.data = "experimentname"
+    _form.user.choices = [(user.id, user.name) for user in users]
+        
+    if _location is None:
+        flash(f'Location {_location.name} with id {id} does not exist!', 'danger')
+        return redirect("/equipment/my_page")
+    
+    if _location.is_in_use():
+        flash(f'Location {_location.name} with id {id} is currently in use by {_location.get_current_active_usage().user}!', 'danger')
+        return redirect("/equipment/my_page") #return redirect(url_for('equipment.view_equipment', id=_equipment.id))
+    
+    if _form.validate_on_submit():
+        _location=StorageModel.query.filter_by(id=_form.borrowing_location.data).first()
+        _user=Users.query.filter_by(id=_form.user.data).first()
+        _location.borrow_location_usage(
+            name=_form.name.data,
+            usage_start= _form.usage_start_datetime.data,
+            usage_planned_end= _form.alt1_usage_planned_end_date.data,
+            #usage_duration_days= _form.alt2_usage_duration_days.data,
+            borrowing_user=_user,
+            )
+        flash(f'Borrowing Location successfull.', 'success')
+
+    flash(f'You can borrow this location. Please add some spicy infos.', 'secondary')
+    return render_template('equipment/borrow_location.html', form=_form, location=_location)
+
+@equipment.route('/return_location/<id>', methods=['GET', 'POST'])
+@login_required
+def return_location(id):
+    _location:StorageModel = StorageModel.query.filter_by(id=id).first()
+    
+    if _location is None:
+        flash(f'Location {_location.name} with id {id} does not exist!', 'danger')
+        return redirect(url_for("equipment.my_page"))
+    
+    if _location.is_in_use() ==False:
+        flash(f"Location {_location.name} with id {id} cannot be returned, since it has not been borrowed.", 'danger')
+        return redirect(url_for("equipment.my_page"))
+            
+    if not _location.is_in_use_by(current_user) and not current_user.role_code==ADMIN:
+        flash(f'Location {_location.name} with id {id} has not been borrowed by you.', 'danger')
+        return redirect(url_for("equipment.my_page"))
+    
+    _location.return_location_usage()
+    flash(f'Location {_location.name} has been returned successfully.', 'success')
+    return redirect(url_for("equipment.my_page"))
+    
 
 @equipment.route('/borrow/<id>', methods=['GET', 'POST'])
 @login_required
@@ -286,7 +356,6 @@ def borrow_multiple_equipments():
                     flash(f'Borrowing Equipment {_equipment.name} with id {_equipment.id} was successfull.', 'success')
         flash(f'Borrowing multiple equipments process finished.', 'warning')
     return render_template('equipment/borrow_multiple_equipments.html', form=_form)
-
 
 @equipment.route('/return/<id>', methods=['GET', 'POST'])
 @login_required
