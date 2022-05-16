@@ -468,6 +468,9 @@ def kicker():
     _form = KickerMatchForm()
     _form.team_1_player_1.choices = [(user.id, user.name) for user in _users]
     _form.team_1_player_1.default = current_user.id #(_equipment.id, _equipment.name)
+    _form.goals_team_1.data = 0
+    _form.goals_team_2.data = 0
+    
     _form.team_1_player_2.choices = [(user.id, user.name) for user in _users]
     _form.team_2_player_1.choices = [(user.id, user.name) for user in _users]
     _form.team_2_player_2.choices = [(user.id, user.name) for user in _users]
