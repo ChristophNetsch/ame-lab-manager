@@ -10,7 +10,7 @@ dotenv.load_dotenv()
 from sqlalchemy.orm.mapper import configure_mappers
 
 from ame_manager_app import create_app
-from ame_manager_app.equipment.models import (BriefingModel, CalibrationModel, CommentModel, EquipmentModel, LocationUsageModel,
+from ame_manager_app.equipment.models import (BriefingModel, CalibrationModel, CommentModel, EquipmentModel, KickerMatchModel, LocationUsageModel,
                                               RoomModel, StorageModel,
                                               UsageModel)
 from ame_manager_app.extensions import db
@@ -186,6 +186,33 @@ def inittestdb():
     for _return_location in _return_locations:
         print(f"Returning location usage {_return_location}")
         _return_location.return_location_usage()
-
-
-    print("Database successfully initialized with dummy data.")
+    
+    #add kicker match
+    _goals_team1 = random.randint(0,10)
+    _goals_team2 = random.randint(0,10)
+    _is_team1_winner = False
+    _is_team2_winner = False
+    if _goals_team1>_goals_team2:
+        _is_team1_winner = True
+    elif _goals_team1<_goals_team2:
+        _is_team2_winner = True
+        
+    _is_crawl = False
+    if _goals_team1<=0 or _goals_team2<=0:
+        _is_crawl = True
+    _match = KickerMatchModel(
+        team_1_player1=random.choice([user, admin]),
+        team_1_player2=random.choice([user, admin]),
+        team_2_player1=random.choice([user, admin]),
+        team_2_player2=random.choice([user, admin]),
+        goals_team1 = _goals_team1,
+        goals_team2 = _goals_team2,
+        date = get_current_time_with_offset_days(random.randint(-365, -1)),
+        is_crawl = _is_crawl,
+        is_team1_winner = _is_team1_winner,
+        is_team2_winner = _is_team2_winner,
+    )
+    db.session.add(_match)
+    db.session.commit()
+    print("Kicker Match succesfuly initialized with dummy data.")
+print("Database succesfuly initialized with dummy data.")

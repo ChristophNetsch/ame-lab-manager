@@ -4,16 +4,15 @@ import pathlib
 from flask import Blueprint, current_app, flash, redirect, render_template, send_file, url_for
 from ..utils import get_current_time
 from flask_login import current_user, login_required
-from ame_manager_app.equipment.forms import BorrowLocationForm, BorrowMultipleEquipmentsForm, RegisterEquipmentForm, FilterEquipmentForm,SearchEquipmentForm,BorrowEquipmentForm,AddCalibrationForm, AddBriefingForm, AddCommentForm
+from ame_manager_app.equipment.forms import BorrowLocationForm, BorrowMultipleEquipmentsForm, RegisterEquipmentForm, FilterEquipmentForm,SearchEquipmentForm,BorrowEquipmentForm,AddCalibrationForm, AddBriefingForm, AddCommentForm, KickerMatchForm
 
-from ame_manager_app.equipment.models import EquipmentModel, StorageModel, UsageModel, LocationUsageModel, RoomModel
+from ame_manager_app.equipment.models import EquipmentModel, KickerMatchModel, StorageModel, UsageModel, LocationUsageModel, RoomModel
 from ame_manager_app.user import ADMIN
 from ame_manager_app.user.models import Users
 import datetime
 import qrcode
 import io
 from PIL import ImageFont, ImageDraw, Image
-
 
 from ..extensions import db
 
@@ -222,7 +221,7 @@ def borrow_location(id):
             #usage_duration_days= _form.alt2_usage_duration_days.data,
             borrowing_user=_user,
             )
-        flash(f'Borrowing Location successfull.', 'success')
+        flash(f'Borrowing Location successful.', 'success')
 
     flash(f'You can borrow this location. Please add some spicy infos.', 'secondary')
     return render_template('equipment/borrow_location.html', form=_form, location=_location)
@@ -245,7 +244,7 @@ def return_location(id):
         return redirect(url_for("equipment.my_page"))
     
     _location.return_location_usage()
-    flash(f'Location {_location.name} has been returned successfully.', 'success')
+    flash(f'Location {_location.name} has been returned succesfuly.', 'success')
     return redirect(url_for("equipment.my_page"))
     
 
@@ -295,7 +294,7 @@ def borrow_equipment(id):
             borrowing_user=_user,
             usage_location = _usage_location,
             )
-        flash(f'Borrowing Equipment successfull.', 'success')
+        flash(f'Borrowing Equipment successful.', 'success')
 
     flash(f'You can borrow this equipment. Please add some spicy infos.', 'secondary')
     return render_template('equipment/borrow_equipment.html', form=_form, equipment=_equipment)
@@ -353,7 +352,7 @@ def borrow_multiple_equipments():
                         borrowing_user=_user,
                         usage_location = _usage_location,
                         )
-                    flash(f'Borrowing Equipment {_equipment.name} with id {_equipment.id} was successfull.', 'success')
+                    flash(f'Borrowing Equipment {_equipment.name} with id {_equipment.id} was succesful.', 'success')
         flash(f'Borrowing multiple equipments process finished.', 'warning')
     return render_template('equipment/borrow_multiple_equipments.html', form=_form)
 
@@ -375,7 +374,7 @@ def return_equipment(id):
         return redirect(url_for("equipment.my_page"))
     
     _equipment.return_equipment()
-    flash(f'Equipment {_equipment.name} has been returned successfully.', 'success')
+    flash(f'Equipment {_equipment.name} has been returned succesfuly.', 'success')
     return redirect(url_for("equipment.my_page"))
     
 @equipment.route('/brief/<id>', methods=['GET', 'POST'])
@@ -406,7 +405,7 @@ def add_briefing(id):
             user=_briefed_user,
             briefer=_briefer,
             )
-        flash(f'Briefing submission successfull.', 'success')
+        flash(f'Briefing submission succesful.', 'success')
     return render_template('equipment/add_briefing.html',
                            form=_form,
                            equipment=_equipment,
@@ -431,7 +430,7 @@ def add_comment(id):
             is_comment_for_responsible_admin= True, 
             is_comment_for_users= True,
             )
-        flash(f'Comment submission successfull.', 'success')
+        flash(f'Comment submission succesful.', 'success')
 
     return render_template('equipment/add_comment.html',
                            form=_form,
@@ -455,8 +454,60 @@ def add_calibration(id):
             user= current_user,
             date_until= _form.date_until.data, 
             )
-        flash(f'Calibration submission successfull.', 'success')
+        flash(f'Calibration submission succesful.', 'success')
     return render_template('equipment/add_calibration.html',
                            form=_form,
                            equipment=_equipment,
-                           )          
+                           ) 
+             
+@equipment.route('/kicker', methods=['GET', 'POST'])
+@login_required
+def kicker():
+    _users = Users.query.all()
+    _matches = KickerMatchModel.query.all()
+    _form = KickerMatchForm()
+    _form.team_1_player_1.choices = [(user.id, user.name) for user in _users]
+    _form.team_1_player_1.default = current_user.id #(_equipment.id, _equipment.name)
+    _form.goals_team_1.data = 0
+    _form.goals_team_2.data = 0
+    
+    _form.team_1_player_2.choices = [(user.id, user.name) for user in _users]
+    _form.team_2_player_1.choices = [(user.id, user.name) for user in _users]
+    _form.team_2_player_2.choices = [(user.id, user.name) for user in _users]
+    if _form.validate_on_submit():
+        _team_1_player_1 = Users.query.filter_by(id=_form.team_1_player_1.data).first()
+        _team_1_player_2 = Users.query.filter_by(id=_form.team_1_player_2.data).first()
+        _team_2_player_1 = Users.query.filter_by(id=_form.team_2_player_1.data).first()
+        _team_2_player_2 = Users.query.filter_by(id=_form.team_2_player_2.data).first()
+        _goals_team1 = _form.goals_team_1.data
+        _goals_team2 = _form.goals_team_2.data
+        _equipment=EquipmentModel.query.first()
+        _equipment.add_kicker_match(
+            _team_1_player_1=_team_1_player_1,
+            _team_1_player_2=_team_1_player_2,
+            _team_2_player_1=_team_2_player_1,
+            _team_2_player_2=_team_2_player_2,
+            _goals_team1 = _goals_team1,
+            _goals_team2 = _goals_team2,
+        )
+        _matches = KickerMatchModel.query.all()
+        flash(f'Kicker match submission successful.', 'success')
+
+    return render_template('equipment/kicker_match.html',
+                           form=_form,
+                           user=current_user,
+                           users=_users,
+                           matches=_matches,
+                           )
+                  
+@equipment.route('/kicker_scores', methods=['GET', 'POST'])
+@login_required
+def kicker_scoreboard():
+    _users = Users.query.all()
+    _matches = KickerMatchModel.query.all()
+    return render_template('equipment/kicker_scoreboard.html',
+                           user=current_user,
+                           users=_users,
+                           matches=_matches,
+                           )
+                  

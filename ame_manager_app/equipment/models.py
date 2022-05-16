@@ -236,6 +236,40 @@ class EquipmentModel(db.Model):
         )
         db.session.add(_equipment)
         db.session.commit()
+        
+    def add_kicker_match(self,
+        _team_1_player_1,
+        _team_1_player_2,
+        _team_2_player_1,
+        _team_2_player_2,
+        _goals_team1,
+        _goals_team2,
+    ):
+        _is_team1_winner = False
+        _is_team2_winner = False
+        if _goals_team1>_goals_team2:
+            _is_team1_winner = True
+        elif _goals_team1<_goals_team2:
+            _is_team2_winner = True
+            
+        _is_crawl = False
+        if _goals_team1<=0 or _goals_team2<=0:
+            _is_crawl = True
+            
+        _match = KickerMatchModel(
+            team_1_player1=_team_1_player_1,
+            team_1_player2=_team_1_player_2,
+            team_2_player1=_team_2_player_1,
+            team_2_player2=_team_2_player_2,
+            goals_team1 = _goals_team1,
+            goals_team2 = _goals_team2,
+            date = get_current_time(),
+            is_crawl = _is_crawl,
+            is_team1_winner = _is_team1_winner,
+            is_team2_winner = _is_team2_winner,
+        )
+        db.session.add(_match)
+        db.session.commit()
     
 class CommentModel(db.Model):
 
@@ -430,3 +464,31 @@ class UsageModelAdmin(sqla.ModelView):
     def is_accessible(self):
         if current_user.role == "admin":
             return current_user.is_authenticated()
+
+class KickerMatchModel(db.Model):
+
+    __tablename__ = "kicker_match"
+
+    id = Column(db.Integer, primary_key=True)
+    date = Column(db.DateTime, default=get_current_time)
+    goals_team1 = Column(db.Integer)
+    goals_team2 = Column(db.Integer)
+    is_team1_winner = Column(db.Boolean)
+    is_team2_winner = Column(db.Boolean)
+    is_crawl = Column(db.Boolean)
+
+    team_1_player1_id = Column(db.Integer, db.ForeignKey("user.id"))
+    team_1_player2_id = Column(db.Integer, db.ForeignKey("user.id"))
+    team_2_player1_id = Column(db.Integer, db.ForeignKey("user.id"))
+    team_2_player2_id = Column(db.Integer, db.ForeignKey("user.id"))
+    team_1_player1 = db.relationship("Users",foreign_keys=[team_1_player1_id])
+    team_1_player2 = db.relationship("Users",foreign_keys=[team_1_player2_id])
+    team_2_player1 = db.relationship("Users",foreign_keys=[team_2_player1_id])
+    team_2_player2 = db.relationship("Users",foreign_keys=[team_2_player2_id])
+
+    def __unicode__(self):
+        _str = "ID: %s, Post: %s" % (self.id, self.date)
+        return str(_str)
+    
+    def __repr__(self):
+        return f"Team 1:{self.team_1_player1.name_short}+{self.team_1_player2.name_short}, {self.goals_team1}:{self.goals_team2}, Team 2:{self.team_2_player1.name_short},{self.team_2_player2.name_short}, date:{self.date}"
