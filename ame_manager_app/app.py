@@ -102,9 +102,12 @@ def configure_template_filters(app):
         return pretty_date(value)
 
     @app.template_filter()
-    def format_date(value, format="%Y-%m-%d"):
+    def format_date(value, format="%d.%m.%y"):
         return value.strftime(format)
 
+    @app.template_filter()
+    def format_datetime(value, format="%d.%m.%y, %H:%M"):
+        return value.strftime(format)
 
 def configure_logging(app):
     # Configure logging

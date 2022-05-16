@@ -30,6 +30,9 @@
           <a class="dropdown-item" href="/admin/">Admin Dashboard</a>
           <hr>
           {% endif %}
+          <a class="dropdown-item" href="{{ url_for('equipment.kicker') }}">Play Kicker Match</a>
+          <a class="dropdown-item" href="{{ url_for('equipment.kicker_scoreboard') }}">Kicker Score Board</a>
+          <hr>
           <a class="dropdown-item" href="{{ url_for('settings.profile') }}">Update Profile</a>
           <a class="dropdown-item" href="{{ url_for('settings.password') }}">Change Password</a>
           <hr>

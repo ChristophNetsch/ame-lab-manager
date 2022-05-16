@@ -1,0 +1,130 @@
+{% from "macros/_form.html" import render_form %}
+
+{% set page_title = 'Eternal Kicker Score Board' %}
+
+{% extends 'layouts/base.html' %}
+
+{% block body %}
+  <div class="container">
+    <div class="row mt-5">
+      <div class="col-6 offset-3">
+        <a style="margin-right: 5px; margin-left: 5px;" class="btn btn-outline-dark" href="/equipment/my_page">Back to my overview</a>
+        <hr>
+        <h3>Add a kicker match!</h3>
+        <hr>
+
+          <h5>Scoreboard:</h5>
+          {% set total_goals = namespace(value=0) %}
+          {% set total_games = namespace(value=0) %}
+          {% if users|length > 0 %}
+          <table class="table table-hover">
+                        <thead>
+                          <tr>
+                            <th>User</th>
+                            <th>Wins & Matches</th>
+                            <th>Win Rate</th>
+                            <th>Goals & Counter Goals</th>
+                            <th>Goals per Match</th>
+                            <th>Crawls</th>
+                            <th>Let Crawl</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                          {% for score_user in users %}
+                          {% set count_games = namespace(value=0) %}
+                          {% set count_wins = namespace(value=0) %}
+                          {% set count_goals = namespace(value=0) %}
+                          {% set count_countergoals = namespace(value=0) %}
+                          {% set count_crawls = namespace(value=0) %}
+                          {% set count_letcrawls = namespace(value=0) %}
+                          <td>{{ score_user.name}} ({{ score_user.name_short}})</td>
+                          {% for match in matches %}
+                            {% set total_games.value = total_games.value + 1 %}
+                            {% set total_goals.value = total_goals.value + match.goals_team1 + match.goals_team2 %}
+
+                            {% if match.team_1_player1.name == score_user.name or match.team_1_player2.name == score_user.name %}
+
+                              {% set count_games.value = count_games.value + 1 %}
+                              {% set count_goals.value = count_goals.value + match.goals_team1 %}
+                              {% set count_countergoals.value = count_countergoals.value + match.goals_team2 %}
+
+                              {% if match.is_team1_winner %}
+                                {% set count_wins.value = count_wins.value + 1 %}
+                                {% if match.is_crawl %}
+                                  {% set count_letcrawls.value = count_letcrawls.value + 1 %}
+                                {% endif %}    
+                              {% endif %}
+
+                              {% if match.is_team2_winner %}
+                                {% if match.is_crawl %}
+                                  {% set count_crawls.value = count_crawls.value + 1 %}
+                                {% endif %}    
+                              {% endif %}
+                            
+                            {% endif %}
+
+                            {% if match.team_2_player1.name == score_user.name or match.team_2_player2.name == score_user.name %}
+
+                              {% set count_games.value = count_games.value + 1 %}
+                              {% set count_goals.value = count_goals.value + match.goals_team2 %}
+                              {% set count_countergoals.value = count_countergoals.value + match.goals_team1 %}
+                              
+                              {% if match.is_team2_winner %}
+                                {% set count_wins.value = count_wins.value + 1 %}
+                                {% if match.is_crawl %}
+                                  {% set count_letcrawls.value = count_letcrawls.value + 1 %}
+                                {% endif %}    
+                              {% endif %}
+
+                              {% if match.is_team1_winner %}
+                                {% if match.is_crawl %}
+                                  {% set count_crawls.value = count_crawls.value + 1 %}
+                                {% endif %}    
+                              {% endif %}
+                            
+                            {% endif %}
+                          {% endfor %}
+                          <td>{{count_wins.value}}/{{count_games.value}}</td>
+                          <td>{{(count_wins.value/count_games.value*100)|round(1)}}%</td>
+                          <td>{{count_goals.value}}/{{count_countergoals.value}} (Ratio: {{(count_goals.value/count_countergoals.value)|round(1)}})</td>
+                          <td>{{(count_goals.value/count_games.value)|round(1)}}</td>
+                          <td>{{count_crawls.value}}</td>
+                          <td>{{count_letcrawls.value}}</td>
+                          </tr>        
+                        {% endfor %}
+                        </tbody>
+                      </table>
+            {% endif %}
+
+            {% set i_counter_table_entries = namespace(value=0) %}
+            <h5>Past Match History:</h5>
+            {% if matches|length > 0 %}
+            <table class="table table-hover">
+                          <thead>
+                            <tr>
+                              <th>Team 1</th>
+                              <th>Score</th>
+                              <th>Team 2</th>
+                              <th>Date</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                              {% for match in matches %}
+                                {% set i_counter_table_entries.value = i_counter_table_entries.value + 1 %}
+                                  <tr>
+                                      <td>{{ match.team_1_player1.name_short}}+{{ match.team_1_player2.name_short}}</td>
+                                      <td>{{ match.goals_team1}} : {{ match.goals_team2}}</td>
+                                      <td>{{ match.team_2_player1.name_short}}+{{ match.team_2_player2.name_short}}</td>
+                                      <td>{{ match.date | format_datetime }}</td>
+                                    </tr>
+                              {% endfor %}
+                          </tbody>
+                        </table>
+                    <p>Total Matches: {{total_games.value}}; Total Goals: {{total_goals.value}}</p>
+              {% endif %}
+    
+        </div>
+    </div>
+  </div>
+{% endblock %}

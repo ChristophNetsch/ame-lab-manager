@@ -3,8 +3,8 @@
 from random import choices
 from flask_login import current_user
 from flask_wtf import FlaskForm
-from wtforms import BooleanField,SubmitField, SelectMultipleField, SelectField, RadioField, StringField, DateField, DateTimeField, SelectField
-from wtforms.validators import DataRequired, Length, Optional
+from wtforms import BooleanField,SubmitField, SelectMultipleField, SelectField, RadioField, IntegerField, StringField, DateField, DateTimeField, SelectField
+from wtforms.validators import DataRequired, Length, Optional, InputRequired
 from ..utils import get_current_time
 
 class RegisterEquipmentForm(FlaskForm):
@@ -82,3 +82,12 @@ class AddBriefingForm(FlaskForm):
     text = StringField("Briefing text (optional)")
     date_until= DateField("Briefing expiry date (optional)",validators=(Optional(),))
     submit = SubmitField("Submit")
+    
+class KickerMatchForm(FlaskForm):
+    team_1_player_1 = SelectField("Team 1",validators=[DataRequired()])
+    team_1_player_2 = SelectField("",validators=[DataRequired()])
+    goals_team_1 = IntegerField("Goals team 1",validators=[InputRequired()])
+    goals_team_2 = IntegerField("Goals team 2",validators=[InputRequired()])
+    team_2_player_1 = SelectField("Team 2",validators=[DataRequired()])
+    team_2_player_2 = SelectField("",validators=[DataRequired()])
+    submit = SubmitField("Submit Match")
