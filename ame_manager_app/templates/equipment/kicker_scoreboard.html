@@ -14,8 +14,6 @@
         <hr>
 
           <h5>Scoreboard:</h5>
-          {% set total_goals = namespace(value=0) %}
-          {% set total_games = namespace(value=0) %}
           {% if users|length > 0 %}
           <table class="table table-hover">
                         <thead>
@@ -40,8 +38,6 @@
                           {% set count_letcrawls = namespace(value=0) %}
                           <td>{{ score_user.name}} ({{ score_user.name_short}})</td>
                           {% for match in matches %}
-                            {% set total_games.value = total_games.value + 1 %}
-                            {% set total_goals.value = total_goals.value + match.goals_team1 + match.goals_team2 %}
 
                             {% if match.team_1_player1.name == score_user.name or match.team_1_player2.name == score_user.name %}
 
@@ -121,7 +117,14 @@
                               {% endfor %}
                           </tbody>
                         </table>
-                    <p>Total Matches: {{total_games.value}}; Total Goals: {{total_goals.value}}</p>
+                        
+                        {% set total_goals = namespace(value=0) %}
+                        {% set total_games = namespace(value=0) %}
+                        {% for match in matches %}
+                          {% set total_games.value = total_games.value + 1 %}
+                          {% set total_goals.value = total_goals.value + match.goals_team1 + match.goals_team2 %}
+                        {% endfor %}
+                        <p>Total Matches: {{total_games.value}}; Total Goals: {{total_goals.value}}</p>
               {% endif %}
     
         </div>
