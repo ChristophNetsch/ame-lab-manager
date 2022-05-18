@@ -83,9 +83,14 @@
                             
                             {% endif %}
                           {% endfor %}
+
                           <td>{{count_wins.value}}/{{count_games.value}}</td>
                           <td>{{(count_wins.value/count_games.value*100)|round(1)}}%</td>
+                          {% if count_countergoals.value == 0 %}
+                          <td>{{count_goals.value}}/0 (Ratio: inf)</td>
+                          {% else %}
                           <td>{{count_goals.value}}/{{count_countergoals.value}} (Ratio: {{(count_goals.value/count_countergoals.value)|round(1)}})</td>
+                          {% endif %} 
                           <td>{{(count_goals.value/count_games.value)|round(1)}}</td>
                           <td>{{count_crawls.value}}</td>
                           <td>{{count_letcrawls.value}}</td>
