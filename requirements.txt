@@ -10,3 +10,4 @@ itsdangerous==2.0.1
 pytest==7.0.1
 python-dotenv
 pathlib2
+pymysql

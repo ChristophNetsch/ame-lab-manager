@@ -30,10 +30,10 @@ class DefaultConfig(BaseConfig):
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # SQLITE for production
-    SQLALCHEMY_DATABASE_URI = f"sqlite:///{INSTANCE_FOLDER_PATH}/db.sqlite"
+    # SQLALCHEMY_DATABASE_URI = f"sqlite:///{INSTANCE_FOLDER_PATH}/db.sqlite"
 
-    # POSTGRESQL for production
-    # SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://postgres:pass@ip/dbname'
+    # MYSQL for production
+    SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{os.getenv('MARIADB_USER')}:{os.getenv('MARIADB_KEY')}@{os.getenv('MARIADB_HOST')}/{os.getenv('MARIADB_DBNAME')}"
 
     # Flask-cache
     CACHE_TYPE = "simple"

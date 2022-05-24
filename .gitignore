@@ -3,7 +3,7 @@
 instance/*
 !instance/.gitignore
 .webassets-cache
-# .env
+.env
 tmp/
 
 ### Flask.Python Stack ###
