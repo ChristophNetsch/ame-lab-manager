@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import os
 import random
 
 import dotenv
@@ -18,6 +19,24 @@ from ame_manager_app.user import ACTIVE, ADMIN, USER, Users
 
 application = create_app()
 
+@application.cli.command("initdb")
+def initdb():
+    db.drop_all()
+    configure_mappers()
+    db.create_all()
+    
+    admin = Users(
+        name="admin",
+        name_short="adm",
+        email=os.getenv("ADMIN_EMAIL"),
+        password=os.getenv("ADMIN_DEFAULT_PASSWORD"),
+        role_code=ADMIN,
+        status_code=ACTIVE,
+    )
+    
+    db.session.add(admin)
+    db.session.commit()
+    
 @application.cli.command("inittestdb")
 def inittestdb():
     """Init/reset database and write some dummy data to each table."""

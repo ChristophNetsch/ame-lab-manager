@@ -31,7 +31,7 @@ class SignupForm(FlaskForm):
     password = PasswordField(
         "Password",
         [InputRequired(), Length(PASSWORD_LEN_MIN, PASSWORD_LEN_MAX)],
-        description=" 6 or more characters.",
+        description=f" between {str(PASSWORD_LEN_MIN)} and {str(PASSWORD_LEN_MAX)} characters.",
     )
     agree = BooleanField("Agree to the " + terms_html, [InputRequired()])
     submit = SubmitField("Sign up")

@@ -68,6 +68,7 @@ def login():
     )
 
     if form.validate_on_submit():
+        
         user, authenticated = Users.authenticate(form.login.data, form.password.data)
 
         if user and authenticated:
@@ -106,6 +107,7 @@ def signup():
         user = Users()
         user.status_code = 2
         user.name_short = form.name_short.data
+        user.email = form.email.data.lower()
         user.account_type = 0
         form.populate_obj(user)
 
