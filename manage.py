@@ -215,4 +215,3 @@ def inittestdb():
     db.session.add(_match)
     db.session.commit()
     print("Kicker Match succesfuly initialized with dummy data.")
-print("Database succesfuly initialized with dummy data.")
