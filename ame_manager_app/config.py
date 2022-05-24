@@ -18,7 +18,7 @@ class BaseConfig(object):
     DEBUG = False
     TESTING = False
 
-    SECRET_KEY = "rf942ut8hg43ztyr579890ysrt"
+    SECRET_KEY = os.getenv('FLASK_SECRET')
 
 
 class DefaultConfig(BaseConfig):
